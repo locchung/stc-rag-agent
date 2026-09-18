@@ -99,6 +99,50 @@ TOOL_CASES = [
     ("chào hỏi",            "xin chào",                                   None),
 ]
 
+# ---------------------------------------------------------------------------
+# 3b. CA NHIỀU LƯỢT - câu hỏi rút gọn, chỉ hiểu được nhờ lịch sử.
+# Lịch sử ở đây là bản ĐÃ RÚT GỌN mà client gửi lên, không phải nguyên văn câu
+# trả lời (xem src/seatecco_rag/history.py).
+# ---------------------------------------------------------------------------
+MULTI_TURN_CASES = [
+    ("nối tiếp địa điểm",
+     [{"role": "user", "content": "Seatecco có bao nhiêu dự án PCCC?"},
+      {"role": "assistant", "content": "Seatecco có 6 dự án PCCC: 1. Tòa nhà kiểm toán nhà "
+                                       "nước khu vực III - Đà Nẵng — PCCC (MEPF)"}],
+     "còn ở Đà Nẵng thì sao?", "tra_cuu_du_an"),
+
+    ("nối tiếp lương",
+     [{"role": "user", "content": "Seatecco đang tuyển vị trí nào?"},
+      {"role": "assistant", "content": "Seatecco đang tuyển 2 vị trí: 1. CÔNG TY CP SEATECCO "
+                                       "TUYỂN 20 CÔNG NHÂN CƠ ĐIỆN LẠNH"}],
+     "lương vị trí đó bao nhiêu?", "liet_ke_tuyen_dung"),
+
+    # đổi chủ đề: lịch sử nói chuyện tuyển dụng, câu mới hỏi dự án
+    ("đổi chủ đề giữa chừng",
+     [{"role": "user", "content": "Seatecco đang tuyển vị trí nào?"},
+      {"role": "assistant", "content": "Seatecco đang tuyển 2 vị trí..."}],
+     "công ty có bao nhiêu dự án HVAC?", "tra_cuu_du_an"),
+
+    # sau một danh sách, hỏi chi tiết MỘT dự án -> phải chuyển sang tra tài liệu
+    ("hỏi chi tiết sau danh sách",
+     [{"role": "user", "content": "liệt kê dự án nhà máy sữa"},
+      {"role": "assistant", "content": "Seatecco có 6 dự án Nhà máy sữa: 1. THmilk, 2. Long "
+                                       "Thành, 3. Củ Chi"}],
+     "nhà máy Củ Chi công suất bao nhiêu?", "search_documentation"),
+
+    ("chuyển sang tin tức",
+     [{"role": "user", "content": "Seatecco có bao nhiêu dự án PCCC?"},
+      {"role": "assistant", "content": "Seatecco có 6 dự án PCCC"}],
+     "còn tin tức mới nhất?", "liet_ke_tin_tuc"),
+
+    # có lịch sử rồi vẫn không được gọi tool cho câu xã giao
+    ("cảm ơn",
+     [{"role": "user", "content": "Seatecco có bao nhiêu dự án PCCC?"},
+      {"role": "assistant", "content": "Seatecco có 6 dự án PCCC"}],
+     "cảm ơn bạn nhé", None),
+]
+
+
 ToolExpect = str | tuple[str, ...] | None
 
 

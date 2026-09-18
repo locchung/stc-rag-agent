@@ -1,0 +1,139 @@
+{
+  "label": "route_gemini_nhieu_luot",
+  "model": "gemini-3.5-flash-lite",
+  "lan": 2,
+  "dung": 12,
+  "tong": 12,
+  "so_lan_khong_goi_tool": 0,
+  "giay_trung_vi": 0.8,
+  "ghi_chu": "6 ca nhieu luot, gemini-3.5-flash-lite",
+  "luc": "2026-09-18T14:33:51",
+  "chi_tiet": [
+    {
+      "cau_hoi": "nối tiếp địa điểm",
+      "lan": 1,
+      "dung": true,
+      "can": "tra_cuu_du_an",
+      "goi": "tra_cuu_du_an",
+      "tham_so": {
+        "linh_vuc": "",
+        "dia_diem": "Đà Nẵng",
+        "hang_muc": "PCCC"
+      },
+      "giay": 1.1
+    },
+    {
+      "cau_hoi": "nối tiếp địa điểm",
+      "lan": 2,
+      "dung": true,
+      "can": "tra_cuu_du_an",
+      "goi": "tra_cuu_du_an",
+      "tham_so": {
+        "dia_diem": "Đà Nẵng"
+      },
+      "giay": 0.7
+    },
+    {
+      "cau_hoi": "nối tiếp lương",
+      "lan": 1,
+      "dung": true,
+      "can": "liet_ke_tuyen_dung",
+      "goi": "liet_ke_tuyen_dung",
+      "tham_so": {
+        "tu_khoa": ""
+      },
+      "giay": 0.7
+    },
+    {
+      "cau_hoi": "nối tiếp lương",
+      "lan": 2,
+      "dung": true,
+      "can": "liet_ke_tuyen_dung",
+      "goi": "liet_ke_tuyen_dung",
+      "tham_so": {
+        "tu_khoa": ""
+      },
+      "giay": 0.7
+    },
+    {
+      "cau_hoi": "đổi chủ đề giữa chừng",
+      "lan": 1,
+      "dung": true,
+      "can": "tra_cuu_du_an",
+      "goi": "tra_cuu_du_an",
+      "tham_so": {
+        "linh_vuc": "HVAC"
+      },
+      "giay": 0.8
+    },
+    {
+      "cau_hoi": "đổi chủ đề giữa chừng",
+      "lan": 2,
+      "dung": true,
+      "can": "tra_cuu_du_an",
+      "goi": "tra_cuu_du_an",
+      "tham_so": {
+        "linh_vuc": "HVAC"
+      },
+      "giay": 0.7
+    },
+    {
+      "cau_hoi": "hỏi chi tiết sau danh sách",
+      "lan": 1,
+      "dung": true,
+      "can": "search_documentation",
+      "goi": "search_documentation",
+      "tham_so": {
+        "query": "nhà máy sữa Củ Chi công suất"
+      },
+      "giay": 0.8
+    },
+    {
+      "cau_hoi": "hỏi chi tiết sau danh sách",
+      "lan": 2,
+      "dung": true,
+      "can": "search_documentation",
+      "goi": "search_documentation",
+      "tham_so": {
+        "query": "Nhà máy sữa Củ Chi công suất"
+      },
+      "giay": 0.8
+    },
+    {
+      "cau_hoi": "chuyển sang tin tức",
+      "lan": 1,
+      "dung": true,
+      "can": "liet_ke_tin_tuc",
+      "goi": "liet_ke_tin_tuc",
+      "tham_so": {},
+      "giay": 1.0
+    },
+    {
+      "cau_hoi": "chuyển sang tin tức",
+      "lan": 2,
+      "dung": true,
+      "can": "liet_ke_tin_tuc",
+      "goi": "liet_ke_tin_tuc",
+      "tham_so": {},
+      "giay": 0.8
+    },
+    {
+      "cau_hoi": "cảm ơn",
+      "lan": 1,
+      "dung": true,
+      "can": null,
+      "goi": null,
+      "tham_so": {},
+      "giay": 0.9
+    },
+    {
+      "cau_hoi": "cảm ơn",
+      "lan": 2,
+      "dung": true,
+      "can": null,
+      "goi": null,
+      "tham_so": {},
+      "giay": 0.8
+    }
+  ]
+}

@@ -25,7 +25,7 @@ os.environ.setdefault("LANGCHAIN_TRACING_V2", "false")
 
 from seatecco_rag.providers import model_id
 from evals.harness import RESULTS
-from evals.case.questions import TOOL_CASES, tool_ok
+from evals.case.questions import MULTI_TURN_CASES, TOOL_CASES, tool_ok
 
 NL = chr(10)
 
@@ -35,6 +35,8 @@ parser.add_argument("--provider", default=None, help="ollama | openai | anthropi
 parser.add_argument("--lan", type=int, default=1, help="số lượt chạy mỗi câu")
 parser.add_argument("--label", default=None)
 parser.add_argument("--ghi-chu", dest="ghi_chu", default="")
+parser.add_argument("--nhieu-luot", dest="nhieu_luot", action="store_true",
+                    help="đo bộ câu hỏi rút gọn cần lịch sử mới hiểu")
 parser.add_argument("--chi-so-sanh", dest="chi_so_sanh", action="store_true")
 args = parser.parse_args()
 
@@ -73,14 +75,24 @@ TOOLS = [app.search_documentation, app.tra_cuu_du_an, app.liet_ke_tin_tuc, app.l
 bound = app.llm.bind_tools(TOOLS)
 label = args.label or f"route_{MODEL_ID.replace(':', '_').replace('.', '')}"
 
+# Bộ nhiều lượt đi qua ĐÚNG hàm mà /chat dùng, nên đo luôn cả phần cắt lịch sử.
+if args.nhieu_luot:
+  from seatecco_rag.history import build_messages                    # noqa: E402
+  CASES = [(ten, lich_su, cau, can) for ten, lich_su, cau, can in MULTI_TURN_CASES]
+else:
+  CASES = [(ten, None, cau, can) for ten, cau, can in TOOL_CASES]
+
 print()
-print(f"== {len(TOOL_CASES)} câu x {args.lan} lượt | model={MODEL_ID} ==")
+print(f"== {len(CASES)} câu x {args.lan} lượt | model={MODEL_ID}"
+      f"{' | CÓ lịch sử' if args.nhieu_luot else ''} ==")
 
 chi_tiet, times = [], []
-for name, question, expected in TOOL_CASES:
+for name, lich_su, question, expected in CASES:
   for lan in range(args.lan):
+    dau_vao = (build_messages(question, lich_su) if args.nhieu_luot
+               else [("human", question)])
     t = time.perf_counter()
-    msg = bound.invoke([("system", app.SYSTEM_PROMPT), ("human", question)])
+    msg = bound.invoke([("system", app.SYSTEM_PROMPT), *dau_vao])
     giay = time.perf_counter() - t
     times.append(giay)
 
