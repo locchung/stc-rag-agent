@@ -1,0 +1,361 @@
+{
+  "label": "route_gemini35_flash_lite",
+  "model": "gemini-3.5-flash-lite",
+  "lan": 2,
+  "dung": 34,
+  "tong": 34,
+  "so_lan_khong_goi_tool": 0,
+  "giay_trung_vi": 0.7,
+  "ghi_chu": "free tier, temperature bi bo qua",
+  "luc": "2026-09-18T10:36:41",
+  "chi_tiet": [
+    {
+      "cau_hoi": "liệt kê dự án",
+      "lan": 1,
+      "dung": true,
+      "can": "tra_cuu_du_an",
+      "goi": "tra_cuu_du_an",
+      "tham_so": {},
+      "giay": 1.3
+    },
+    {
+      "cau_hoi": "liệt kê dự án",
+      "lan": 2,
+      "dung": true,
+      "can": "tra_cuu_du_an",
+      "goi": "tra_cuu_du_an",
+      "tham_so": {},
+      "giay": 0.7
+    },
+    {
+      "cau_hoi": "công trình",
+      "lan": 1,
+      "dung": true,
+      "can": "tra_cuu_du_an",
+      "goi": "tra_cuu_du_an",
+      "tham_so": {},
+      "giay": 0.7
+    },
+    {
+      "cau_hoi": "công trình",
+      "lan": 2,
+      "dung": true,
+      "can": "tra_cuu_du_an",
+      "goi": "tra_cuu_du_an",
+      "tham_so": {},
+      "giay": 0.8
+    },
+    {
+      "cau_hoi": "tuyển vị trí",
+      "lan": 1,
+      "dung": true,
+      "can": "liet_ke_tuyen_dung",
+      "goi": "liet_ke_tuyen_dung",
+      "tham_so": {
+        "tu_khoa": ""
+      },
+      "giay": 0.7
+    },
+    {
+      "cau_hoi": "tuyển vị trí",
+      "lan": 2,
+      "dung": true,
+      "can": "liet_ke_tuyen_dung",
+      "goi": "liet_ke_tuyen_dung",
+      "tham_so": {},
+      "giay": 0.7
+    },
+    {
+      "cau_hoi": "tin tuyển dụng",
+      "lan": 1,
+      "dung": true,
+      "can": "liet_ke_tuyen_dung",
+      "goi": "liet_ke_tuyen_dung",
+      "tham_so": {},
+      "giay": 1.0
+    },
+    {
+      "cau_hoi": "tin tuyển dụng",
+      "lan": 2,
+      "dung": true,
+      "can": "liet_ke_tuyen_dung",
+      "goi": "liet_ke_tuyen_dung",
+      "tham_so": {},
+      "giay": 0.8
+    },
+    {
+      "cau_hoi": "bài tin tức",
+      "lan": 1,
+      "dung": true,
+      "can": "liet_ke_tin_tuc",
+      "goi": "liet_ke_tin_tuc",
+      "tham_so": {},
+      "giay": 1.1
+    },
+    {
+      "cau_hoi": "bài tin tức",
+      "lan": 2,
+      "dung": true,
+      "can": "liet_ke_tin_tuc",
+      "goi": "liet_ke_tin_tuc",
+      "tham_so": {},
+      "giay": 0.7
+    },
+    {
+      "cau_hoi": "cty con",
+      "lan": 1,
+      "dung": true,
+      "can": "search_documentation",
+      "goi": "search_documentation",
+      "tham_so": {
+        "query": "các công ty con của Seatecco"
+      },
+      "giay": 1.0
+    },
+    {
+      "cau_hoi": "cty con",
+      "lan": 2,
+      "dung": true,
+      "can": "search_documentation",
+      "goi": "search_documentation",
+      "tham_so": {
+        "query": "công ty con của seatecco"
+      },
+      "giay": 0.7
+    },
+    {
+      "cau_hoi": "thành lập (tra cứu)",
+      "lan": 1,
+      "dung": true,
+      "can": "search_documentation",
+      "goi": "search_documentation",
+      "tham_so": {
+        "query": "Seatecco thành lập năm nào"
+      },
+      "giay": 0.8
+    },
+    {
+      "cau_hoi": "thành lập (tra cứu)",
+      "lan": 2,
+      "dung": true,
+      "can": "search_documentation",
+      "goi": "search_documentation",
+      "tham_so": {
+        "query": "Seatecco được thành lập năm nào"
+      },
+      "giay": 1.0
+    },
+    {
+      "cau_hoi": "Củ Chi (tra cứu)",
+      "lan": 1,
+      "dung": true,
+      "can": "search_documentation",
+      "goi": "search_documentation",
+      "tham_so": {
+        "query": "nhà máy sữa Củ Chi công suất"
+      },
+      "giay": 0.8
+    },
+    {
+      "cau_hoi": "Củ Chi (tra cứu)",
+      "lan": 2,
+      "dung": true,
+      "can": "search_documentation",
+      "goi": "search_documentation",
+      "tham_so": {
+        "query": "nhà máy sữa Củ Chi công suất"
+      },
+      "giay": 1.0
+    },
+    {
+      "cau_hoi": "đếm PCCC",
+      "lan": 1,
+      "dung": true,
+      "can": "tra_cuu_du_an",
+      "goi": "tra_cuu_du_an",
+      "tham_so": {
+        "hang_muc": "PCCC"
+      },
+      "giay": 0.7
+    },
+    {
+      "cau_hoi": "đếm PCCC",
+      "lan": 2,
+      "dung": true,
+      "can": "tra_cuu_du_an",
+      "goi": "tra_cuu_du_an",
+      "tham_so": {
+        "hang_muc": "PCCC"
+      },
+      "giay": 0.7
+    },
+    {
+      "cau_hoi": "lĩnh vực nhiều nhất",
+      "lan": 1,
+      "dung": true,
+      "can": "tra_cuu_du_an",
+      "goi": "tra_cuu_du_an",
+      "tham_so": {},
+      "giay": 0.7
+    },
+    {
+      "cau_hoi": "lĩnh vực nhiều nhất",
+      "lan": 2,
+      "dung": true,
+      "can": "tra_cuu_du_an",
+      "goi": "tra_cuu_du_an",
+      "tham_so": {},
+      "giay": 0.8
+    },
+    {
+      "cau_hoi": "smart home",
+      "lan": 1,
+      "dung": true,
+      "can": "tra_cuu_du_an",
+      "goi": "tra_cuu_du_an",
+      "tham_so": {
+        "hang_muc": "smart home"
+      },
+      "giay": 0.7
+    },
+    {
+      "cau_hoi": "smart home",
+      "lan": 2,
+      "dung": true,
+      "can": "tra_cuu_du_an",
+      "goi": "tra_cuu_du_an",
+      "tham_so": {
+        "hang_muc": "smart home"
+      },
+      "giay": 1.0
+    },
+    {
+      "cau_hoi": "dự án Đà Nẵng",
+      "lan": 1,
+      "dung": true,
+      "can": "tra_cuu_du_an",
+      "goi": "tra_cuu_du_an",
+      "tham_so": {
+        "dia_diem": "Đà Nẵng"
+      },
+      "giay": 0.8
+    },
+    {
+      "cau_hoi": "dự án Đà Nẵng",
+      "lan": 2,
+      "dung": true,
+      "can": "tra_cuu_du_an",
+      "goi": "tra_cuu_du_an",
+      "tham_so": {
+        "dia_diem": "Đà Nẵng"
+      },
+      "giay": 0.7
+    },
+    {
+      "cau_hoi": "mức lương",
+      "lan": 1,
+      "dung": true,
+      "can": "liet_ke_tuyen_dung",
+      "goi": "liet_ke_tuyen_dung",
+      "tham_so": {
+        "tu_khoa": "cơ điện lạnh"
+      },
+      "giay": 0.7
+    },
+    {
+      "cau_hoi": "mức lương",
+      "lan": 2,
+      "dung": true,
+      "can": "liet_ke_tuyen_dung",
+      "goi": "liet_ke_tuyen_dung",
+      "tham_so": {
+        "tu_khoa": "cơ điện lạnh"
+      },
+      "giay": 0.7
+    },
+    {
+      "cau_hoi": "tin mới nhất",
+      "lan": 1,
+      "dung": true,
+      "can": "liet_ke_tin_tuc",
+      "goi": "liet_ke_tin_tuc",
+      "tham_so": {},
+      "giay": 0.6
+    },
+    {
+      "cau_hoi": "tin mới nhất",
+      "lan": 2,
+      "dung": true,
+      "can": "liet_ke_tin_tuc",
+      "goi": "liet_ke_tin_tuc",
+      "tham_so": {},
+      "giay": 1.0
+    },
+    {
+      "cau_hoi": "Poet Residence",
+      "lan": 1,
+      "dung": true,
+      "can": "search_documentation",
+      "goi": "search_documentation",
+      "tham_so": {
+        "query": "The Poet Residence"
+      },
+      "giay": 0.9
+    },
+    {
+      "cau_hoi": "Poet Residence",
+      "lan": 2,
+      "dung": true,
+      "can": "search_documentation",
+      "goi": "search_documentation",
+      "tham_so": {
+        "query": "The Poet Residence"
+      },
+      "giay": 0.7
+    },
+    {
+      "cau_hoi": "gửi CV",
+      "lan": 1,
+      "dung": true,
+      "can": [
+        "liet_ke_tuyen_dung",
+        "search_documentation"
+      ],
+      "goi": "liet_ke_tuyen_dung",
+      "tham_so": {
+        "tu_khoa": ""
+      },
+      "giay": 0.7
+    },
+    {
+      "cau_hoi": "gửi CV",
+      "lan": 2,
+      "dung": true,
+      "can": [
+        "liet_ke_tuyen_dung",
+        "search_documentation"
+      ],
+      "goi": "liet_ke_tuyen_dung",
+      "tham_so": {},
+      "giay": 0.7
+    },
+    {
+      "cau_hoi": "chào hỏi",
+      "lan": 1,
+      "dung": true,
+      "can": null,
+      "goi": null,
+      "tham_so": {},
+      "giay": 1.1
+    },
+    {
+      "cau_hoi": "chào hỏi",
+      "lan": 2,
+      "dung": true,
+      "can": null,
+      "goi": null,
+      "tham_so": {},
+      "giay": 0.8
+    }
+  ]
+}

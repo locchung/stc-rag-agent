@@ -1,0 +1,134 @@
+{
+  "label": "hard_qwen35_2b_providers",
+  "model": "qwen3.5:2b",
+  "lan": 2,
+  "du_kien_dung": 34,
+  "du_kien_tong": 34,
+  "so_lan_khong_goi_tool": 0,
+  "so_chu_bia": 0,
+  "giay_trung_vi": 9.9,
+  "ghi_chu": "sau khi them providers factory",
+  "luc": "2026-09-18T10:21:34",
+  "chi_tiet": [
+    {
+      "cau_hoi": "đếm PCCC",
+      "lan": 1,
+      "dung": 7,
+      "can": 7,
+      "thieu": [],
+      "bia": [],
+      "tool": [
+        "tra_cuu_du_an"
+      ],
+      "giay": 4.1
+    },
+    {
+      "cau_hoi": "đếm PCCC",
+      "lan": 2,
+      "dung": 7,
+      "can": 7,
+      "thieu": [],
+      "bia": [],
+      "tool": [
+        "tra_cuu_du_an"
+      ],
+      "giay": 7.9
+    },
+    {
+      "cau_hoi": "liệt kê nhà máy sữa",
+      "lan": 1,
+      "dung": 6,
+      "can": 6,
+      "thieu": [],
+      "bia": [],
+      "tool": [
+        "tra_cuu_du_an"
+      ],
+      "giay": 19.9
+    },
+    {
+      "cau_hoi": "liệt kê nhà máy sữa",
+      "lan": 2,
+      "dung": 6,
+      "can": 6,
+      "thieu": [],
+      "bia": [],
+      "tool": [
+        "tra_cuu_du_an"
+      ],
+      "giay": 8.2
+    },
+    {
+      "cau_hoi": "lĩnh vực nhiều nhất",
+      "lan": 1,
+      "dung": 1,
+      "can": 1,
+      "thieu": [],
+      "bia": [],
+      "tool": [
+        "tra_cuu_du_an"
+      ],
+      "giay": 15.8
+    },
+    {
+      "cau_hoi": "lĩnh vực nhiều nhất",
+      "lan": 2,
+      "dung": 1,
+      "can": 1,
+      "thieu": [],
+      "bia": [],
+      "tool": [
+        "tra_cuu_du_an"
+      ],
+      "giay": 4.6
+    },
+    {
+      "cau_hoi": "tên vị trí nguyên văn",
+      "lan": 1,
+      "dung": 2,
+      "can": 2,
+      "thieu": [],
+      "bia": [],
+      "tool": [
+        "liet_ke_tuyen_dung"
+      ],
+      "giay": 16.8
+    },
+    {
+      "cau_hoi": "tên vị trí nguyên văn",
+      "lan": 2,
+      "dung": 2,
+      "can": 2,
+      "thieu": [],
+      "bia": [],
+      "tool": [
+        "liet_ke_tuyen_dung"
+      ],
+      "giay": 4.7
+    },
+    {
+      "cau_hoi": "nói không có",
+      "lan": 1,
+      "dung": 1,
+      "can": 1,
+      "thieu": [],
+      "bia": [],
+      "tool": [
+        "tra_cuu_du_an"
+      ],
+      "giay": 22.4
+    },
+    {
+      "cau_hoi": "nói không có",
+      "lan": 2,
+      "dung": 1,
+      "can": 1,
+      "thieu": [],
+      "bia": [],
+      "tool": [
+        "tra_cuu_du_an"
+      ],
+      "giay": 11.6
+    }
+  ]
+}

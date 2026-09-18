@@ -12,18 +12,19 @@ import json
 from pathlib import Path
 import uuid
 
+from langchain_core.embeddings import Embeddings
 from langchain_core.vectorstores import InMemoryVectorStore
-from langchain_ollama import OllamaEmbeddings
 
-from ..config import (CLEAN_CHANGELOG, CLEAN_VERSION, DOCBASE_DIR, EMBED_MODEL, EMBED_NUM_CTX,
-                      INDEX_CONFIG, KEEP_ALIVE, MANIFEST_PATH, STORE_PATH, source_key)
+from .. import providers
+from ..config import (CLEAN_CHANGELOG, CLEAN_VERSION, DOCBASE_DIR, INDEX_CONFIG, MANIFEST_PATH,
+                      STORE_PATH, source_key)
 from .documents import build_documents
 
 BATCH = 64
 
 
-def get_embeddings() -> OllamaEmbeddings:
-  return OllamaEmbeddings(model=EMBED_MODEL, keep_alive=KEEP_ALIVE, num_ctx=EMBED_NUM_CTX)
+def get_embeddings() -> Embeddings:
+  return providers.get_embeddings()
 
 
 def file_sha256(path: Path) -> str:
@@ -45,6 +46,12 @@ def load_index() -> InMemoryVectorStore:
   if not (STORE_PATH.exists() and MANIFEST_PATH.exists()):
     raise FileNotFoundError(
         f"Chưa có index ở {STORE_PATH}. Chạy: python -m seatecco_rag.ingest.index")
+  # Không kiểm chỗ này là hỏng âm thầm: index dựng bằng embedding của hãng khác vẫn
+  # nạp được, rồi đem vector khác số chiều so cosine với nhau -> trả về chunk bừa.
+  saved = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))["config"]
+  if saved != INDEX_CONFIG:
+    raise RuntimeError(f"Index được dựng bằng cấu hình khác: {saved} != {INDEX_CONFIG}. "
+                       "Chạy lại: python -m seatecco_rag.ingest.index")
   return InMemoryVectorStore.load(str(STORE_PATH), get_embeddings())
 
 

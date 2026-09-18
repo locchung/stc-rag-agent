@@ -23,6 +23,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 os.environ.setdefault("LANGSMITH_TRACING", "false")
 os.environ.setdefault("LANGCHAIN_TRACING_V2", "false")
 
+from seatecco_rag.providers import model_id
 from evals.harness import RESULTS, answer_scores
 from evals.case.questions import FACT_CASES, check_facts
 
@@ -34,7 +35,8 @@ SEP = NL + NL + "---" + NL + NL
 parser = argparse.ArgumentParser()
 parser.add_argument("--k", type=int, default=6, help="số chunk đưa cho model (mặc định 6)")
 parser.add_argument("--lan", type=int, default=1, help="số lượt chạy mỗi câu")
-parser.add_argument("--model", default=None, help="đổi model Ollama, mặc định lấy trong agent.py")
+parser.add_argument("--model", default=None, help="tên model, mặc định lấy trong config")
+parser.add_argument("--provider", default=None, help="ollama | openai | anthropic | google_genai")
 parser.add_argument("--label", default=None)
 parser.add_argument("--ghi-chu", dest="ghi_chu", default="")
 parser.add_argument("--chi-so-sanh", dest="chi_so_sanh", action="store_true")
@@ -66,8 +68,15 @@ print()
 print("== nạp index ==")
 import agent as app  # noqa: E402
 
-if args.model:
-  app.llm.model = args.model
+if args.model or args.provider:
+  from seatecco_rag.agent import build_agent            # noqa: E402
+  from seatecco_rag.providers import get_chat_model     # noqa: E402
+  app.llm = get_chat_model(args.provider, args.model)
+  app.agent = build_agent(app.llm)
+
+MODEL_ID = model_id(app.llm)
+
+
 
 SYSTEM = app.SYSTEM_PROMPT   # dùng đúng prompt mà agent thật đang chạy
 
@@ -76,7 +85,7 @@ clean_version = manifest["config"].get("clean_version", 0)
 label = args.label or f"ans_v{clean_version}_k{args.k}"
 
 print()
-print(f"== đo {len(FACT_CASES)} câu x {args.lan} lượt, k={args.k}, model={app.llm.model} ==")
+print(f"== đo {len(FACT_CASES)} câu x {args.lan} lượt, k={args.k}, model={MODEL_ID} ==")
 rows, times = [], []
 for name, question, fact in FACT_CASES:
   for lan in range(args.lan):
@@ -104,7 +113,7 @@ for name, question, fact in FACT_CASES:
 dung = sum(r["dung"] for r in rows)
 tu_them = sum(len(r["tu_them"]) for r in rows)
 out = {
-    "label": label, "k": args.k, "lan": args.lan, "model": app.llm.model,
+    "label": label, "k": args.k, "lan": args.lan, "model": MODEL_ID,
     "tong_luot": len(rows), "dung_du_kien": dung,
     "so_chu_tu_them": tu_them,
     "so_lan_bi_cat": sum(1 for r in rows if r["done_reason"] == "length"),

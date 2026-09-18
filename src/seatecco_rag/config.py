@@ -17,6 +17,7 @@ DOCBASE_DIR = ROOT / "data" / "raw"
 INDEX_DIR = ROOT / "var" / "index"
 STORE_PATH = INDEX_DIR / "store.json"
 MANIFEST_PATH = INDEX_DIR / "manifest.json"
+REQUEST_LOG = ROOT / "var" / "logs" / "requests.jsonl"
 PDF_TONG_HOP = DOCBASE_DIR / "Thong tin tong hop Seatecco.pdf"
 
 
@@ -38,11 +39,13 @@ DOC_TITLES = {source_key(PDF_TONG_HOP): "Thông tin tổng hợp Seatecco"}
 PROJECT_TABLE_TITLE = "5.1. Bảng tổng hợp danh mục dự án"
 
 # --- embedding và chia chunk ---
+EMBED_PROVIDER = os.getenv("SEATECCO_EMBED_PROVIDER", "ollama")
 EMBED_MODEL = os.getenv("SEATECCO_EMBED_MODEL", "qwen3-embedding:0.6b")
 EMBED_NUM_CTX = int(os.getenv("SEATECCO_EMBED_NUM_CTX", "2048"))
 
 # Ghi vào manifest: đổi bất kỳ giá trị nào ở đây là index bị dựng lại toàn bộ.
 INDEX_CONFIG = {
+  "embedding_provider": EMBED_PROVIDER,
   "embedding_model": EMBED_MODEL,
   "chunk_size": CHUNK_SIZE,
   "chunk_overlap": CHUNK_OVERLAP,
@@ -50,12 +53,22 @@ INDEX_CONFIG = {
 }
 
 # --- model trả lời ---
+LLM_PROVIDER = os.getenv("SEATECCO_LLM_PROVIDER", "ollama")
 LLM_MODEL = os.getenv("SEATECCO_LLM_MODEL", "qwen3.5:2b")
 LLM_NUM_CTX = int(os.getenv("SEATECCO_LLM_NUM_CTX", "16384"))
 LLM_NUM_PREDICT = int(os.getenv("SEATECCO_LLM_NUM_PREDICT", "1500"))
 LLM_TEMPERATURE = float(os.getenv("SEATECCO_LLM_TEMPERATURE", "0"))
 KEEP_ALIVE = int(os.getenv("SEATECCO_KEEP_ALIVE", "1800"))
+LLM_MAX_RETRIES = int(os.getenv("SEATECCO_LLM_MAX_RETRIES", "2"))
+
+# Phao dự bị cho đường phục vụ: chỉ api.py bật, eval KHÔNG bật (kẻo 429 âm thầm
+# thành câu trả lời của model khác và điểm đo thành vô nghĩa).
+LLM_FALLBACK_PROVIDER = os.getenv("SEATECCO_LLM_FALLBACK_PROVIDER", "ollama")
+LLM_FALLBACK_MODEL = os.getenv("SEATECCO_LLM_FALLBACK_MODEL", "qwen3.5:2b")
 
 # --- truy xuất ---
 SEARCH_K = int(os.getenv("SEATECCO_SEARCH_K", "6"))
 SEARCH_CANDIDATES = int(os.getenv("SEATECCO_SEARCH_CANDIDATES", "12"))
+
+LLM_PROVIDER = os.getenv("SEATECCO_LLM_PROVIDER", "ollama")
+EMBED_PROVIDER = os.getenv("SEATECCO_EMBED_PROVIDER", "ollama")

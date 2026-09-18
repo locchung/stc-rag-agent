@@ -23,13 +23,15 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 os.environ.setdefault("LANGSMITH_TRACING", "false")
 os.environ.setdefault("LANGCHAIN_TRACING_V2", "false")
 
+from seatecco_rag.providers import model_id
 from evals.harness import RESULTS
 from evals.case.questions import TOOL_CASES, tool_ok
 
 NL = chr(10)
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--model", default=None, help="đổi model Ollama, mặc định lấy trong agent.py")
+parser.add_argument("--model", default=None, help="tên model, mặc định lấy trong config")
+parser.add_argument("--provider", default=None, help="ollama | openai | anthropic | google_genai")
 parser.add_argument("--lan", type=int, default=1, help="số lượt chạy mỗi câu")
 parser.add_argument("--label", default=None)
 parser.add_argument("--ghi-chu", dest="ghi_chu", default="")
@@ -57,15 +59,22 @@ if args.chi_so_sanh:
 print("== nạp index ==")
 import agent as app  # noqa: E402
 
-if args.model:
-  app.llm.model = args.model
+if args.model or args.provider:
+  from seatecco_rag.agent import build_agent            # noqa: E402
+  from seatecco_rag.providers import get_chat_model     # noqa: E402
+  app.llm = get_chat_model(args.provider, args.model)
+  app.agent = build_agent(app.llm)
+
+MODEL_ID = model_id(app.llm)
+
+
 
 TOOLS = [app.search_documentation, app.tra_cuu_du_an, app.liet_ke_tin_tuc, app.liet_ke_tuyen_dung]
 bound = app.llm.bind_tools(TOOLS)
-label = args.label or f"route_{app.llm.model.replace(':', '_').replace('.', '')}"
+label = args.label or f"route_{MODEL_ID.replace(':', '_').replace('.', '')}"
 
 print()
-print(f"== {len(TOOL_CASES)} câu x {args.lan} lượt | model={app.llm.model} ==")
+print(f"== {len(TOOL_CASES)} câu x {args.lan} lượt | model={MODEL_ID} ==")
 
 chi_tiet, times = [], []
 for name, question, expected in TOOL_CASES:
@@ -86,7 +95,7 @@ for name, question, expected in TOOL_CASES:
 
 dung = sum(c["dung"] for c in chi_tiet)
 out = {
-    "label": label, "model": app.llm.model, "lan": args.lan,
+    "label": label, "model": MODEL_ID, "lan": args.lan,
     "dung": dung, "tong": len(chi_tiet),
     "so_lan_khong_goi_tool": sum(1 for c in chi_tiet if c["goi"] is None and c["can"] is not None),
     "giay_trung_vi": round(statistics.median(times), 1),

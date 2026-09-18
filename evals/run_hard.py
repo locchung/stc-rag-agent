@@ -22,6 +22,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 os.environ.setdefault("LANGSMITH_TRACING", "false")
 os.environ.setdefault("LANGCHAIN_TRACING_V2", "false")
 
+from seatecco_rag.providers import model_id
 from evals.harness import RESULTS, answer_scores
 from evals.case.questions import HARD_ANSWER_CASES, check_hard, project_rows
 
@@ -29,6 +30,8 @@ NL = chr(10)
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--lan", type=int, default=1, help="số lượt chạy mỗi câu")
+parser.add_argument("--model", default=None, help="tên model, mặc định lấy trong config")
+parser.add_argument("--provider", default=None, help="ollama | openai | anthropic | google_genai")
 parser.add_argument("--label", default=None)
 parser.add_argument("--ghi-chu", dest="ghi_chu", default="")
 parser.add_argument("--chi-so-sanh", dest="chi_so_sanh", action="store_true")
@@ -58,13 +61,22 @@ check_hard()
 print()
 print("== nạp index ==")
 import agent as app  # noqa: E402
+
+if args.model or args.provider:
+  from seatecco_rag.agent import build_agent            # noqa: E402
+  from seatecco_rag.providers import get_chat_model     # noqa: E402
+  app.llm = get_chat_model(args.provider, args.model)
+  app.agent = build_agent(app.llm)
+
+MODEL_ID = model_id(app.llm)
+
 from langchain.messages import HumanMessage  # noqa: E402
 
 rows = project_rows()
-label = args.label or f"hard_{app.llm.model.replace(':', '_')}"
+label = args.label or f"hard_{MODEL_ID.replace(':', '_')}"
 
 print()
-print(f"== {len(HARD_ANSWER_CASES)} câu khó x {args.lan} lượt | model={app.llm.model} ==")
+print(f"== {len(HARD_ANSWER_CASES)} câu khó x {args.lan} lượt | model={MODEL_ID} ==")
 
 chi_tiet, times = [], []
 for name, question, expected_fn in HARD_ANSWER_CASES:
@@ -88,7 +100,7 @@ for name, question, expected_fn in HARD_ANSWER_CASES:
     print(f"      {answer[:180].replace(NL, ' | ')}")
 
 out = {
-    "label": label, "model": app.llm.model, "lan": args.lan,
+    "label": label, "model": MODEL_ID, "lan": args.lan,
     "du_kien_dung": sum(c["dung"] for c in chi_tiet),
     "du_kien_tong": sum(c["can"] for c in chi_tiet),
     "so_lan_khong_goi_tool": sum(1 for c in chi_tiet if not c["tool"]),
