@@ -16,12 +16,13 @@ from contextlib import asynccontextmanager
 import secrets
 import time
 
+from typing import Literal
+
 from fastapi import Depends, FastAPI, HTTPException, Request, Security, status
 from fastapi.security import APIKeyHeader
-from langchain.messages import HumanMessage
 from pydantic import BaseModel, Field
 
-from . import config, retrieval, telemetry
+from . import config, history, retrieval, telemetry
 from .agent import build_agent, get_llm
 from .ingest.index import load_index
 from .ratelimit import SlidingWindow
@@ -68,8 +69,18 @@ def check_rate_limit(request: Request, key: str | None = Security(_api_key_heade
                         headers={"Retry-After": str(_limiter.retry_after(who))})
 
 
+class Turn(BaseModel):
+  role: Literal["user", "assistant"]
+  # nhận rộng rồi cắt còn HISTORY_MAX_CHARS, để client gửi nguyên văn câu trả lời
+  # dài (tin tuyển dụng ~2,4KB) vẫn không bị 422
+  content: str = Field(max_length=4000)
+
+
 class ChatRequest(BaseModel):
   question: str = Field(min_length=1, max_length=1000)
+  # lịch sử do CLIENT gửi: không đáng tin, bị cắt cứng ở đây và lọc lại trong history.py
+  history: list[Turn] = Field(default_factory=list, max_length=16)
+  session_id: str | None = Field(default=None, max_length=64)
 
 
 class ChatResponse(BaseModel):
@@ -95,9 +106,11 @@ def chat(req: ChatRequest) -> ChatResponse:
   if agent is None:
     raise HTTPException(status_code=503, detail="Agent chưa sẵn sàng")
 
+  dau_vao = history.build_messages(req.question, [t.model_dump() for t in req.history])
+
   t = time.perf_counter()
   try:
-    result = agent.invoke({"messages": [HumanMessage(content=req.question)]})
+    result = agent.invoke({"messages": dau_vao})
   except Exception as e:
     telemetry.log_request({"cau_hoi": req.question, "ok": False,
                            "loi": f"{type(e).__name__}: {e}"[:300],
@@ -113,6 +126,7 @@ def chat(req: ChatRequest) -> ChatResponse:
 
   telemetry.log_request({"cau_hoi": req.question, "ok": True, "tool": tools, "model": model,
                          "token_vao": vao, "token_ra": ra, "do_dai_tra_loi": len(answer),
+                         "so_luot_lich_su": len(dau_vao) - 1, "phien": req.session_id,
                          "giay": round(seconds, 2)})
 
   return ChatResponse(answer=answer, tools=tools, seconds=round(seconds, 2),

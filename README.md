@@ -76,6 +76,34 @@ Hai điều quan trọng về cấu trúc này:
 2. **Dựng index và phục vụ là hai chương trình.** Service chỉ đọc `var/index/`, nên
    chạy nhiều worker không ai ghi đè ai.
 
+## Lịch sử hội thoại
+
+Service **cố ý không giữ lịch sử**. Browser giữ, và gửi kèm mỗi request:
+
+```json
+{"question": "còn ở Đà Nẵng thì sao?",
+ "history": [{"role": "user", "content": "..."}, {"role": "assistant", "content": "..."}],
+ "session_id": "..."}
+```
+
+Nhờ vậy chạy bao nhiêu worker cũng được, deploy lại không mất gì, và không có dict nào
+phình mãi trong RAM - ba vấn đề của kiểu `store[session_id]` mà docs LangChain minh hoạ.
+Giá phải trả: lịch sử là dữ liệu **không đáng tin**, nên `history.py` lọc vai, cắt từng
+lượt còn 500 ký tự, giữ 8 lượt gần nhất, rồi `trim_messages` chặn thêm theo token.
+
+Đo được:
+
+| | tool suy ra | token vào |
+|---|---|---|
+| *"Seatecco có bao nhiêu dự án PCCC?"* | `tra_cuu_du_an(hang_muc='PCCC')` → 6 dự án | 816 |
+| *"còn ở Đà Nẵng thì sao?"* **có lịch sử** | → 4 dự án PCCC ở Đà Nẵng | 948 |
+| cùng câu đó **không lịch sử** | → 38 dự án ở Đà Nẵng (mất ngữ cảnh) | 815 |
+| client gửi nguyên văn 2.415 ký tự | server cắt còn 500 | 1.009 |
+
+Lịch sử chỉ để model **hiểu câu hỏi rút gọn** mà chọn đúng tool và tham số. Nó không cần
+nội dung câu trả lời cũ, vì ba tool danh sách dùng `return_direct` nên model chưa bao giờ
+đọc output của tool. Client nên giữ bản đầy đủ để hiển thị và chỉ gửi bản rút gọn.
+
 ## Triển khai
 
 Ràng buộc quyết định mọi thứ: **embedding chạy Ollama**, nên nơi nào host service thì

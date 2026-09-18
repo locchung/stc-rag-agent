@@ -26,6 +26,14 @@ REQUEST_LOG = ROOT / "var" / "logs" / "requests.jsonl"
 API_KEY = os.getenv("SEATECCO_API_KEY", "")
 # 0 là tắt. Đếm trong tiến trình nên N worker thì hạn mức thực tế là N lần số này.
 RATE_LIMIT_PER_MINUTE = int(os.getenv("SEATECCO_RATE_LIMIT", "20"))
+
+# --- lịch sử hội thoại ---
+# Service KHÔNG giữ lịch sử: browser giữ và gửi kèm mỗi request, nên chạy bao nhiêu
+# worker cũng được và không có dict nào phình trong RAM. Đổi lại, mọi thứ client gửi
+# lên đều bị cắt theo ba mức dưới đây.
+HISTORY_MAX_TURNS = int(os.getenv("SEATECCO_HISTORY_MAX_TURNS", "8"))
+HISTORY_MAX_CHARS = int(os.getenv("SEATECCO_HISTORY_MAX_CHARS", "500"))
+HISTORY_MAX_TOKENS = int(os.getenv("SEATECCO_HISTORY_MAX_TOKENS", "1200"))
 PDF_TONG_HOP = DOCBASE_DIR / "Thong tin tong hop Seatecco.pdf"
 
 
