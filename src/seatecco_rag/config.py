@@ -10,7 +10,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-ROOT = Path(__file__).resolve().parents[2]
+# Trong container, package nằm trong site-packages nên không suy ra được gốc repo
+# từ vị trí file -> cho ghi đè bằng SEATECCO_ROOT (Dockerfile đặt /app).
+ROOT = Path(os.getenv("SEATECCO_ROOT") or Path(__file__).resolve().parents[2])
 
 # --- dữ liệu nguồn (track trong git) và artifact (không track) ---
 DOCBASE_DIR = ROOT / "data" / "raw"
@@ -18,6 +20,12 @@ INDEX_DIR = ROOT / "var" / "index"
 STORE_PATH = INDEX_DIR / "store.json"
 MANIFEST_PATH = INDEX_DIR / "manifest.json"
 REQUEST_LOG = ROOT / "var" / "logs" / "requests.jsonl"
+
+# --- cổng HTTP ---
+# Để trống là TẮT xác thực (chỉ dùng khi chạy máy mình). Đặt khoá trước khi mở ra Internet.
+API_KEY = os.getenv("SEATECCO_API_KEY", "")
+# 0 là tắt. Đếm trong tiến trình nên N worker thì hạn mức thực tế là N lần số này.
+RATE_LIMIT_PER_MINUTE = int(os.getenv("SEATECCO_RATE_LIMIT", "20"))
 PDF_TONG_HOP = DOCBASE_DIR / "Thong tin tong hop Seatecco.pdf"
 
 
@@ -39,6 +47,8 @@ DOC_TITLES = {source_key(PDF_TONG_HOP): "Thông tin tổng hợp Seatecco"}
 PROJECT_TABLE_TITLE = "5.1. Bảng tổng hợp danh mục dự án"
 
 # --- embedding và chia chunk ---
+# Trong Docker, Ollama không ở localhost mà là một service khác: http://ollama:11434
+OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "")
 EMBED_PROVIDER = os.getenv("SEATECCO_EMBED_PROVIDER", "ollama")
 EMBED_MODEL = os.getenv("SEATECCO_EMBED_MODEL", "qwen3-embedding:0.6b")
 EMBED_NUM_CTX = int(os.getenv("SEATECCO_EMBED_NUM_CTX", "2048"))

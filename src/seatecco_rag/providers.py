@@ -17,11 +17,16 @@ from . import config
 
 
 # --------------------------------------------------------------------------- chat
+def _ollama_kwargs() -> dict:
+  """base_url chỉ truyền khi được đặt, để chạy máy mình vẫn dùng mặc định localhost."""
+  return {"base_url": config.OLLAMA_BASE_URL} if config.OLLAMA_BASE_URL else {}
+
+
 def _ollama_chat(model: str) -> BaseChatModel:
   from langchain_ollama import ChatOllama
   return ChatOllama(model=model, temperature=config.LLM_TEMPERATURE,
                     num_ctx=config.LLM_NUM_CTX, num_predict=config.LLM_NUM_PREDICT,
-                    reasoning=False, keep_alive=config.KEEP_ALIVE)
+                    reasoning=False, keep_alive=config.KEEP_ALIVE, **_ollama_kwargs())
 
 
 def _api_chat(model: str, provider: str) -> BaseChatModel:
@@ -76,7 +81,7 @@ def _ollama_embed(model: str) -> Embeddings:
   # keep_alive của OllamaEmbeddings phải là int giây, không nhận chuỗi "1800"
   from langchain_ollama import OllamaEmbeddings
   return OllamaEmbeddings(model=model, num_ctx=config.EMBED_NUM_CTX,
-                          keep_alive=config.KEEP_ALIVE)
+                          keep_alive=config.KEEP_ALIVE, **_ollama_kwargs())
 
 
 def _openai_embed(model: str) -> Embeddings:

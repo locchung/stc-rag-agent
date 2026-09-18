@@ -1,0 +1,20 @@
+# .env KHÔNG vào image: khoá đến từ env_file lúc chạy
+.env
+.venv/
+.git/
+.github/
+.claude/
+__pycache__/
+**/__pycache__/
+*.py[oc]
+
+# artifact sinh ra, thuộc volume chứ không thuộc image
+var/
+
+# dụng cụ đo, không cần trong bản deploy
+evals/
+tests/
+docs/
+
+*.zip
+*.log

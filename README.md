@@ -73,6 +73,54 @@ Hai điều quan trọng về cấu trúc này:
 2. **Dựng index và phục vụ là hai chương trình.** Service chỉ đọc `var/index/`, nên
    chạy nhiều worker không ai ghi đè ai.
 
+## Triển khai
+
+Ràng buộc quyết định mọi thứ: **embedding chạy Ollama**, nên nơi nào host service thì
+nơi đó phải có Ollama. Vì vậy `docker-compose.yml` có ba service.
+
+```bash
+docker compose up -d ollama
+docker compose exec ollama ollama pull qwen3-embedding:0.6b
+docker compose exec ollama ollama pull qwen3.5:2b        # chỉ cần nếu dùng model dự bị
+docker compose run --rm ingest                           # dựng index vào volume
+docker compose up -d api
+```
+
+Index **không nướng được vào image** vì embed cần Ollama đang chạy - nó nằm trong
+volume `app-var` và do service `ingest` dựng. Chạy lại `ingest` mỗi khi PDF đổi; `api`
+chỉ đọc.
+
+`api` chỉ mở ở `127.0.0.1:8000`. Website không gọi trực tiếp từ browser mà qua một
+Route Handler của Next.js (BFF), để khoá không lộ ra client và để chặn lượt ở tầng
+của mình:
+
+```ts
+// app/api/chat/route.ts
+export async function POST(req: Request) {
+  const { question } = await req.json();
+  const r = await fetch(`${process.env.RAG_URL}/chat`, {
+    method: "POST",
+    headers: { "content-type": "application/json", "x-api-key": process.env.RAG_API_KEY! },
+    body: JSON.stringify({ question }),
+    signal: AbortSignal.timeout(20_000),
+  });
+  if (!r.ok) return Response.json({ error: "Chatbot tạm thời không phản hồi" }, { status: 502 });
+  const d = await r.json();
+  return Response.json({ answer: d.answer });   // không trả model/token ra browser
+}
+```
+
+Trước khi mở ra Internet, kiểm ba việc:
+
+1. **`SEATECCO_API_KEY` đã đặt.** Rỗng thì `/chat` mở cho mọi người, và lúc khởi động
+   service sẽ in cảnh báo. `/healthz` có trường `auth` để kiểm từ xa.
+2. **`SEATECCO_RATE_LIMIT`** (mặc định 20 lượt/phút mỗi khoá hoặc mỗi IP). Đếm trong
+   tiến trình, nên `--workers 2` thì hạn mức thực tế là 40.
+3. **Thời gian xấu nhất.** `(1 + LLM_MAX_RETRIES) x LLM_TIMEOUT` = 30s trước khi rơi
+   sang model dự bị, cộng thêm 40-66s nữa nếu câu đó là câu văn xuôi và qwen phải tự
+   viết. Đặt timeout phía Next.js nhỏ hơn giới hạn thời gian chạy của gói hosting và
+   trả về một câu xin lỗi tử tế, đừng để request bị cắt giữa đường.
+
 ## Kiểm tra
 
 ```bash
