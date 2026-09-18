@@ -7,6 +7,7 @@ requires-python = ">=3.12"
 dependencies = [
     "dotenv>=0.9.9",
     "fastapi>=0.115",
+    "langchain-google-genai>=4.4.0",
     "langchain-ollama>=1.1.0",
     "langchain-text-splitters>=1.1.2",
     "langchain[openai]>=1.4.0",
@@ -19,6 +20,9 @@ dependencies = [
 [project.optional-dependencies]
 # chỉ cần cho các script thí nghiệm cũ trong evals/archive/
 archive = ["deepagents>=0.7.13", "langchain-nimble>=4.0.0"]
+providers = [
+    "langchain-anthropic>=1.7.2",
+]
 
 [dependency-groups]
 dev = ["pytest>=8.0"]
