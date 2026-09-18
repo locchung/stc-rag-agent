@@ -74,8 +74,8 @@ INDEX_CONFIG = {
 }
 
 # --- model trả lời ---
-LLM_PROVIDER = os.getenv("SEATECCO_LLM_PROVIDER", "ollama")
-LLM_MODEL = os.getenv("SEATECCO_LLM_MODEL", "qwen3.5:2b")
+LLM_PROVIDER = os.getenv("SEATECCO_LLM_PROVIDER", "google_genai")
+LLM_MODEL = os.getenv("SEATECCO_LLM_MODEL", "gemini-3.5-flash-lite")
 LLM_NUM_CTX = int(os.getenv("SEATECCO_LLM_NUM_CTX", "16384"))
 LLM_NUM_PREDICT = int(os.getenv("SEATECCO_LLM_NUM_PREDICT", "1500"))
 LLM_TEMPERATURE = float(os.getenv("SEATECCO_LLM_TEMPERATURE", "0"))
@@ -89,8 +89,10 @@ LLM_TIMEOUT = float(os.getenv("SEATECCO_LLM_TIMEOUT", "15"))
 
 # Phao dự bị cho đường phục vụ: chỉ api.py bật, eval KHÔNG bật (kẻo 429 âm thầm
 # thành câu trả lời của model khác và điểm đo thành vô nghĩa).
-LLM_FALLBACK_PROVIDER = os.getenv("SEATECCO_LLM_FALLBACK_PROVIDER", "ollama")
-LLM_FALLBACK_MODEL = os.getenv("SEATECCO_LLM_FALLBACK_MODEL", "qwen3.5:2b")
+LLM_FALLBACK_PROVIDER = os.getenv("SEATECCO_LLM_FALLBACK_PROVIDER", "google_genai")
+# Model KHÁC hẳn model chính: hạn mức free tier tính theo từng model, và một model
+# có thể bị khai tử riêng (cả dòng gemini-2.5 nay trả 404 với key mới).
+LLM_FALLBACK_MODEL = os.getenv("SEATECCO_LLM_FALLBACK_MODEL", "gemini-3.6-flash")
 
 # --- truy xuất ---
 SEARCH_K = int(os.getenv("SEATECCO_SEARCH_K", "6"))

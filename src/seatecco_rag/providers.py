@@ -68,7 +68,10 @@ def get_chat_model(provider: str | None = None, model: str | None = None,
   llm = CHAT_BUILDERS[provider](model or config.LLM_MODEL)
 
   du_bi = config.LLM_FALLBACK_PROVIDER
-  if fallback and du_bi and du_bi != provider:
+  # So cả cặp (provider, model): dự bị cùng hãng nhưng KHÁC model vẫn hữu ích, vì
+  # hạn mức free tier tính theo từng model, và một model có thể bị khai tử riêng
+  # (gemini-2.5-flash-lite hiện trả 404 "no longer available to new users").
+  if fallback and du_bi and (du_bi, config.LLM_FALLBACK_MODEL) != (provider, model or config.LLM_MODEL):
     if du_bi not in CHAT_BUILDERS:
       raise ValueError(f"Provider dự bị '{du_bi}' không có trong {sorted(CHAT_BUILDERS)}")
     # with_fallbacks giữ được bind_tools (RunnableRetry thì không), nên agent vẫn dựng được

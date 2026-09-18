@@ -16,10 +16,6 @@ uv sync                          # phụ thuộc chính
 uv sync --all-extras --dev       # thêm pytest và các script trong evals/archive
 uv pip install -e .              # để import được seatecco_rag
 cp .env.example .env             # điền GOOGLE_API_KEY
-
-# chỉ cần nếu dùng model dự bị local, hoặc muốn chạy hẳn offline:
-ollama pull qwen3.5:2b
-ollama pull qwen3-embedding:0.6b
 ```
 
 ## Dùng
@@ -120,10 +116,9 @@ docker compose up -d api
 Index nằm trong volume `app-var` và do service `ingest` dựng. Chạy lại `ingest` mỗi khi
 PDF đổi; `api` chỉ đọc.
 
-Với embedding mặc định là Gemini, **service `ollama` chỉ còn cần cho model dự bị**. Nếu
-để `SEATECCO_LLM_FALLBACK_PROVIDER` trống thì bỏ được cả service đó cùng hai khối
-`depends_on`, và lúc ấy toàn bộ dịch vụ vừa trong 256-512MB RAM - đủ để host ở gần như
-chỗ nào cũng được.
+`docker-compose.yml` **không còn service `ollama`**: chat, embedding và cả model dự bị
+đều đi Gemini, nên toàn bộ dịch vụ vừa trong 256-512MB RAM - host được ở gần như chỗ nào
+cũng được, không cần máy 2GB cho một model local.
 
 `api` chỉ mở ở `127.0.0.1:8000`. Website không gọi trực tiếp từ browser mà qua một
 Route Handler của Next.js (BFF), để khoá không lộ ra client và để chặn lượt ở tầng
@@ -174,7 +169,12 @@ Provider chỉ bị đóng đinh ở hai hàm: `providers.get_chat_model` và
 `providers.get_embeddings`. Không có Adapter tự viết - `ChatOllama`, `ChatOpenAI`,
 `ChatGoogleGenerativeAI` đều đã là `BaseChatModel`, nên đây chỉ là Factory chọn class.
 
-Mặc định là Gemini cho cả hai. Muốn chạy hẳn offline:
+Mặc định **Gemini toàn phần**: chat `gemini-3.5-flash-lite`, embedding
+`gemini-embedding-001`, và model dự bị `gemini-3.6-flash` - model KHÁC model chính vì
+free tier tính hạn mức theo từng model, và một model có thể bị khai tử riêng (cả dòng
+`gemini-2.5` nay trả 404 với key mới).
+
+Muốn chạy hẳn offline thì cài Ollama, `ollama pull qwen3.5:2b qwen3-embedding:0.6b`, rồi:
 
 ```bash
 SEATECCO_LLM_PROVIDER=ollama
@@ -207,7 +207,7 @@ là chỗ để biết ai đã thật sự trả lời.
 
 Model `qwen3.5:2b`, 17 câu định tuyến và 5 câu khó, mỗi câu 2 lượt:
 
-| bộ đo | local (qwen) | Gemini |
+| bộ đo | local (qwen) | Gemini (đang dùng) |
 |---|---|---|
 | định tuyến, 17 câu x 2 lượt | 32/34, 0 lần không gọi tool | **34/34**, 0 |
 | median mỗi quyết định | 1,3s | **0,7s** |
@@ -215,6 +215,11 @@ Model `qwen3.5:2b`, 17 câu định tuyến và 5 câu khó, mỗi câu 2 lượ
 | văn xuôi qua agent | 6/6, nhưng 8-66s | 6/6, **1,6-2,3s** |
 | truy xuất hit@6 | 1,0 | 1,0 |
 | truy xuất hit@2 | 0,867 | **1,0** |
+| định tuyến nhiều lượt, 6 ca x 2 | 12/12 tên tool | 12/12 tên tool |
+
+Hai cái 12/12 đó **không bằng nhau**: ở câu *"còn ở Đà Nẵng thì sao?"*, Gemini giữ được
+`hang_muc='PCCC'` từ lượt trước (4 dự án), còn qwen đánh rơi (38 dự án). Bộ đo chỉ so tên
+tool nên chấm cả hai là đúng - giữ ngữ cảnh nằm ở **tham số**, và đó là lỗ hổng cần vá.
 
 Chi phí đo thật bằng `usage_metadata` với `gemini-3.5-flash-lite`: câu đi qua tool
 `return_direct` tốn 816 token vào / 24 token ra; câu qua `search_documentation` tốn
