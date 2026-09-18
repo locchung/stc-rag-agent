@@ -38,7 +38,8 @@ if not check_facts():
 print("\n== nạp index ==")
 import agent as app                                # noqa: E402  (nạp và build index nếu cần)
 
-manifest = json.loads((ROOT / ".vectorstore/manifest.json").read_text(encoding="utf-8"))
+from seatecco_rag.config import MANIFEST_PATH        # noqa: E402
+manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
 clean_version = manifest["config"].get("clean_version", 0)
 label = args.label or f"v{clean_version}_k{args.k}"
 

@@ -1,8 +1,9 @@
 # Seatecco RAG
 
-Chatbot trả lời câu hỏi về công ty Seatecco từ tài liệu nội bộ, chạy hoàn toàn trên
-máy bằng [Ollama](https://ollama.com). Nguồn tri thức là các PDF trong `data/raw/`,
-sinh ra từ Supabase của website.
+Chatbot trả lời câu hỏi về công ty Seatecco từ tài liệu nội bộ. Nguồn tri thức là các
+PDF trong `data/raw/`, sinh ra từ Supabase của website. Mặc định dùng Gemini cho cả chat
+và embedding; chạy trọn gói offline bằng [Ollama](https://ollama.com) cũng được, đổi hai
+biến môi trường là xong.
 
 Nguyên tắc xuyên suốt: **tool dựng câu trả lời, model chỉ chọn tool**. Ba tool danh
 sách dùng `return_direct=True` nên kết quả do Python tạo và trả về nguyên văn — model
@@ -14,7 +15,9 @@ không viết lại, không có chỗ để bịa.
 uv sync                          # phụ thuộc chính
 uv sync --all-extras --dev       # thêm pytest và các script trong evals/archive
 uv pip install -e .              # để import được seatecco_rag
-cp .env.example .env
+cp .env.example .env             # điền GOOGLE_API_KEY
+
+# chỉ cần nếu dùng model dự bị local, hoặc muốn chạy hẳn offline:
 ollama pull qwen3.5:2b
 ollama pull qwen3-embedding:0.6b
 ```
@@ -86,9 +89,13 @@ docker compose run --rm ingest                           # dựng index vào vol
 docker compose up -d api
 ```
 
-Index **không nướng được vào image** vì embed cần Ollama đang chạy - nó nằm trong
-volume `app-var` và do service `ingest` dựng. Chạy lại `ingest` mỗi khi PDF đổi; `api`
-chỉ đọc.
+Index nằm trong volume `app-var` và do service `ingest` dựng. Chạy lại `ingest` mỗi khi
+PDF đổi; `api` chỉ đọc.
+
+Với embedding mặc định là Gemini, **service `ollama` chỉ còn cần cho model dự bị**. Nếu
+để `SEATECCO_LLM_FALLBACK_PROVIDER` trống thì bỏ được cả service đó cùng hai khối
+`depends_on`, và lúc ấy toàn bộ dịch vụ vừa trong 256-512MB RAM - đủ để host ở gần như
+chỗ nào cũng được.
 
 `api` chỉ mở ở `127.0.0.1:8000`. Website không gọi trực tiếp từ browser mà qua một
 Route Handler của Next.js (BFF), để khoá không lộ ra client và để chặn lượt ở tầng
@@ -139,19 +146,26 @@ Provider chỉ bị đóng đinh ở hai hàm: `providers.get_chat_model` và
 `providers.get_embeddings`. Không có Adapter tự viết - `ChatOllama`, `ChatOpenAI`,
 `ChatGoogleGenerativeAI` đều đã là `BaseChatModel`, nên đây chỉ là Factory chọn class.
 
+Mặc định là Gemini cho cả hai. Muốn chạy hẳn offline:
+
 ```bash
-SEATECCO_LLM_PROVIDER=google_genai
-SEATECCO_LLM_MODEL=gemini-3.5-flash-lite
-SEATECCO_EMBED_PROVIDER=ollama        # giữ local, xem lý do bên dưới
+SEATECCO_LLM_PROVIDER=ollama
+SEATECCO_LLM_MODEL=qwen3.5:2b
+SEATECCO_EMBED_PROVIDER=ollama
+SEATECCO_EMBED_MODEL=qwen3-embedding:0.6b
 ```
 
 Ba điều phải biết trước khi đổi:
 
-1. **Đổi `SEATECCO_EMBED_PROVIDER` là phải dựng lại index.** `embedding_provider` nằm
-   trong `INDEX_CONFIG`, nên `load_index()` sẽ từ chối nạp index dựng bằng cấu hình khác
-   thay vì âm thầm so vector khác số chiều với nhau.
-2. **Nên giữ embedding ở Ollama.** Mỗi câu hỏi đều phải embed câu truy vấn trước khi
-   tìm; đổi sang API là cắm một lời gọi mạng vào đường đi của *mọi* câu hỏi.
+1. **Đổi embedding là phải dựng lại index.** `embedding_provider` và `embedding_model`
+   nằm trong `INDEX_CONFIG`, nên `load_index()` sẽ từ chối nạp index dựng bằng cấu hình
+   khác thay vì âm thầm so vector khác số chiều với nhau.
+2. **Embedding nào tốt hơn thì đã đo, đừng đoán.** `gemini-embedding-001` giữ
+   hit@2 = 1,0 trong khi `qwen3-embedding:0.6b` tụt xuống 0,867 — nó đưa chunk đúng lên
+   hạng 1 ở những câu mà bản local để hạng 3-8. Giá phải trả: 420ms mỗi câu thay vì
+   50ms, và một lời gọi mạng nằm trong đường đi của *mọi* câu hỏi. Bản
+   `gemini-embedding-2` mới hơn lại **kém hơn** (hit@6 = 0,933), nên đừng đổi sang nó
+   mà không đo lại.
 3. **`gemini-3.5-flash-lite` bỏ qua `temperature`.** Bộ đo không còn tất định, phải chạy
    nhiều lượt và nhìn độ phân tán.
 
@@ -165,11 +179,14 @@ là chỗ để biết ai đã thật sự trả lời.
 
 Model `qwen3.5:2b`, 17 câu định tuyến và 5 câu khó, mỗi câu 2 lượt:
 
-| bộ đo | qwen3.5:2b (local) | gemini-3.5-flash-lite |
+| bộ đo | local (qwen) | Gemini |
 |---|---|---|
 | định tuyến, 17 câu x 2 lượt | 32/34, 0 lần không gọi tool | **34/34**, 0 |
 | median mỗi quyết định | 1,3s | **0,7s** |
-| hard end-to-end | 34/34 dữ kiện, 0 chữ bịa | chưa đo |
+| hard end-to-end | 34/34 dữ kiện, 0 chữ bịa | **34/34, 0 chữ bịa**, 0,8s |
+| văn xuôi qua agent | 6/6, nhưng 8-66s | 6/6, **1,6-2,3s** |
+| truy xuất hit@6 | 1,0 | 1,0 |
+| truy xuất hit@2 | 0,867 | **1,0** |
 
 Chi phí đo thật bằng `usage_metadata` với `gemini-3.5-flash-lite`: câu đi qua tool
 `return_direct` tốn 816 token vào / 24 token ra; câu qua `search_documentation` tốn

@@ -100,5 +100,7 @@ def compare(labels: list[str] | None = None) -> None:
       print(f"{f.stem:22} (chưa có)")
       continue
     d = json.loads(f.read_text(encoding="utf-8"))
+    if "hit_at_k" not in d:
+      continue          # results/ giờ chứa cả kết quả của run_hard, run_routing, run_answers
     print(f"{d['label']:22} {d['hit_at_k']:>7} {d['recall_at_k']:>7} "
           f"{d.get('so_chunk', '?'):>7} {d['k']:>3}  {d.get('luc', '')[:19]:19}  {d.get('ghi_chu', '')}")

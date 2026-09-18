@@ -49,8 +49,11 @@ PROJECT_TABLE_TITLE = "5.1. Bảng tổng hợp danh mục dự án"
 # --- embedding và chia chunk ---
 # Trong Docker, Ollama không ở localhost mà là một service khác: http://ollama:11434
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "")
-EMBED_PROVIDER = os.getenv("SEATECCO_EMBED_PROVIDER", "ollama")
-EMBED_MODEL = os.getenv("SEATECCO_EMBED_MODEL", "qwen3-embedding:0.6b")
+# Đo được (evals/results/retr_*): gemini-embedding-001 giữ hit@2 = 1,0 còn
+# qwen3-embedding:0.6b tụt xuống 0,867. Bản gemini-embedding-2 mới hơn lại KÉM hơn
+# (hit@6 = 0,933), nên đừng đổi sang nó mà không đo lại.
+EMBED_PROVIDER = os.getenv("SEATECCO_EMBED_PROVIDER", "google_genai")
+EMBED_MODEL = os.getenv("SEATECCO_EMBED_MODEL", "gemini-embedding-001")
 EMBED_NUM_CTX = int(os.getenv("SEATECCO_EMBED_NUM_CTX", "2048"))
 
 # Ghi vào manifest: đổi bất kỳ giá trị nào ở đây là index bị dựng lại toàn bộ.
