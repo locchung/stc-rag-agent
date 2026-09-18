@@ -29,3 +29,21 @@ def test_moi_so_trong_config_deu_la_so():
   assert isinstance(config.LLM_TIMEOUT, float)
   assert isinstance(config.SEARCH_K, int)
   assert isinstance(config.HISTORY_MAX_TURNS, int)
+
+
+def test_khong_bien_nao_bi_khai_bao_hai_lan():
+  """Khai báo trùng thì dòng sau đè dòng trước, và .env ở máy mình che mất.
+
+  Lỗi thật: LLM_PROVIDER bị khai báo hai lần, lần sau là "ollama". Ở máy dev
+  .env đặt tường minh nên không ai thấy; lên Cloud Run thì service chạy bằng
+  MODEL DỰ BỊ mà nhìn bề ngoài vẫn như bình thường.
+  """
+  import ast
+  import inspect
+  from collections import Counter
+
+  cay = ast.parse(inspect.getsource(config))
+  ten = [muc.id for node in cay.body if isinstance(node, ast.Assign)
+         for muc in node.targets if isinstance(muc, ast.Name)]
+  trung = sorted(t for t, n in Counter(ten).items() if n > 1)
+  assert not trung, f"khai báo trùng trong config.py: {trung}"

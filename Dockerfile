@@ -26,7 +26,7 @@ USER seatecco
 
 EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
-  CMD python -c "import os,urllib.request,sys; p=os.environ.get('PORT','8000'); sys.exit(0 if urllib.request.urlopen(f'http://127.0.0.1:{p}/healthz', timeout=3).status == 200 else 1)"
+  CMD python -c "import os,urllib.request,sys; p=os.environ.get('PORT','8000'); sys.exit(0 if urllib.request.urlopen(f'http://127.0.0.1:{p}/health', timeout=3).status == 200 else 1)"
 
 # Cloud Run bơm PORT vào; Fly và Render cũng vậy. exec để uvicorn thành PID 1 và
 # nhận được SIGTERM khi nền tảng thu hồi container. WEB_CONCURRENCY=1 trên Cloud Run:

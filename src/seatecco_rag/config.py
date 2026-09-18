@@ -110,6 +110,3 @@ LLM_FALLBACK_MODEL = os.getenv("SEATECCO_LLM_FALLBACK_MODEL", "gemini-3.6-flash"
 # --- truy xuất ---
 SEARCH_K = int(so_moi_truong("SEATECCO_SEARCH_K", "6"))
 SEARCH_CANDIDATES = int(so_moi_truong("SEATECCO_SEARCH_CANDIDATES", "12"))
-
-LLM_PROVIDER = os.getenv("SEATECCO_LLM_PROVIDER", "ollama")
-EMBED_PROVIDER = os.getenv("SEATECCO_EMBED_PROVIDER", "ollama")

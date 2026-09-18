@@ -170,10 +170,10 @@ gcloud run deploy seatecco-rag   --image $IMG --region asia-southeast1   --memor
 ```
 
 `--allow-unauthenticated` không có nghĩa là mở toang: `/chat` vẫn đòi `x-api-key`, còn
-`/healthz` thì cố ý mở để nền tảng dò được. `--max-instances 3` là dây an toàn: một vòng
+`/health` thì cố ý mở để nền tảng dò được. `--max-instances 3` là dây an toàn: một vòng
 lặp curl cũng không thể đẻ ra 100 instance.
 
-Cold start ~4-6 giây. Cách chữa không tốn đồng nào: cho website gọi `/healthz` ngay khi
+Cold start ~4-6 giây. Cách chữa không tốn đồng nào: cho website gọi `/health` ngay khi
 người dùng **mở** widget chat, lúc họ gõ xong câu hỏi thì container đã ấm.
 
 Log đi theo stdout nên Cloud Logging tự thu; query bằng
@@ -184,7 +184,7 @@ Log đi theo stdout nên Cloud Logging tự thu; query bằng
 Trước khi mở ra Internet, kiểm ba việc:
 
 1. **`SEATECCO_API_KEY` đã đặt.** Rỗng thì `/chat` mở cho mọi người, và lúc khởi động
-   service sẽ in cảnh báo. `/healthz` có trường `auth` để kiểm từ xa.
+   service sẽ in cảnh báo. `/health` có trường `auth` để kiểm từ xa.
 2. **`SEATECCO_RATE_LIMIT`** (mặc định 20 lượt/phút mỗi khoá hoặc mỗi IP). Đếm trong
    tiến trình, nên `--workers 2` thì hạn mức thực tế là 40.
 3. **Thời gian xấu nhất.** `(1 + LLM_MAX_RETRIES) x LLM_TIMEOUT` = 30s trước khi rơi
