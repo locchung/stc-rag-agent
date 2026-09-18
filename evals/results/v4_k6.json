@@ -1,0 +1,152 @@
+{
+  "k": 6,
+  "so_cau": 11,
+  "hit_at_k": 1.0,
+  "recall_at_k": 1.0,
+  "so_cau_khong_tim_thay": 0,
+  "chi_tiet": [
+    {
+      "cau_hoi": "năm thành lập",
+      "hit": true,
+      "recall": 1.0,
+      "so_chunk_dung_trong_index": 3,
+      "hang": [
+        1,
+        2,
+        5
+      ],
+      "giay": 0.11
+    },
+    {
+      "cau_hoi": "công suất Củ Chi",
+      "hit": true,
+      "recall": 1.0,
+      "so_chunk_dung_trong_index": 3,
+      "hang": [
+        1,
+        14,
+        21
+      ],
+      "giay": 0.11
+    },
+    {
+      "cau_hoi": "trụ sở",
+      "hit": true,
+      "recall": 1.0,
+      "so_chunk_dung_trong_index": 7,
+      "hang": [
+        1,
+        2,
+        18,
+        43,
+        44
+      ],
+      "giay": 0.08
+    },
+    {
+      "cau_hoi": "email tuyển dụng",
+      "hit": true,
+      "recall": 1.0,
+      "so_chunk_dung_trong_index": 3,
+      "hang": [
+        1,
+        2,
+        3
+      ],
+      "giay": 0.08
+    },
+    {
+      "cau_hoi": "địa chỉ S.TECH",
+      "hit": true,
+      "recall": 1.0,
+      "so_chunk_dung_trong_index": 4,
+      "hang": [
+        1,
+        8,
+        10,
+        44
+      ],
+      "giay": 0.09
+    },
+    {
+      "cau_hoi": "công suất Thiên Mã",
+      "hit": true,
+      "recall": 1.0,
+      "so_chunk_dung_trong_index": 5,
+      "hang": [
+        1,
+        37,
+        81,
+        92,
+        114
+      ],
+      "giay": 0.08
+    },
+    {
+      "cau_hoi": "tuyển dụng",
+      "hit": true,
+      "recall": 1.0,
+      "so_chunk_dung_trong_index": 1,
+      "hang": [
+        1
+      ],
+      "giay": 0.07
+    },
+    {
+      "cau_hoi": "thành viên",
+      "hit": true,
+      "recall": 1.0,
+      "so_chunk_dung_trong_index": 1,
+      "hang": [
+        2
+      ],
+      "giay": 0.07
+    },
+    {
+      "cau_hoi": "tin tức",
+      "hit": true,
+      "recall": 1.0,
+      "so_chunk_dung_trong_index": 70,
+      "hang": [
+        4,
+        5,
+        7,
+        26,
+        31
+      ],
+      "giay": 0.06
+    },
+    {
+      "cau_hoi": "đếm dự án",
+      "hit": true,
+      "recall": 1.0,
+      "so_chunk_dung_trong_index": 3,
+      "hang": [
+        1,
+        10,
+        21
+      ],
+      "giay": 0.04
+    },
+    {
+      "cau_hoi": "ĐỐI CHỨNG poet",
+      "hit": true,
+      "recall": 1.0,
+      "so_chunk_dung_trong_index": 4,
+      "hang": [
+        1,
+        2,
+        3,
+        7
+      ],
+      "giay": 0.06
+    }
+  ],
+  "label": "v4_k6",
+  "giay_tong": 0.9,
+  "luc": "2026-09-17T09:40:14",
+  "so_chunk": 196,
+  "embedding": "qwen3-embedding:0.6b",
+  "clean_version": 4,
+  "ghi_chu": "moc dau tien: chia chunk theo muc + chunk tong hop"
+}

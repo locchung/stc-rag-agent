@@ -1,0 +1,78 @@
+{
+  "label": "hard_gemma4_e2b",
+  "model": "gemma4:e2b",
+  "lan": 1,
+  "du_kien_dung": 18,
+  "du_kien_tong": 18,
+  "so_lan_khong_goi_tool": 0,
+  "so_chu_bia": 2,
+  "giay_trung_vi": 8.7,
+  "ghi_chu": "gemma4 e2b-it-qat, chi co tool search_documentation",
+  "luc": "2026-09-17T11:16:46",
+  "chi_tiet": [
+    {
+      "cau_hoi": "đếm PCCC",
+      "lan": 1,
+      "dung": 7,
+      "can": 7,
+      "thieu": [],
+      "bia": [],
+      "tool": [
+        "search_documentation"
+      ],
+      "giay": 5.7
+    },
+    {
+      "cau_hoi": "liệt kê nhà máy sữa",
+      "lan": 1,
+      "dung": 6,
+      "can": 6,
+      "thieu": [],
+      "bia": [],
+      "tool": [
+        "search_documentation"
+      ],
+      "giay": 10.3
+    },
+    {
+      "cau_hoi": "lĩnh vực nhiều nhất",
+      "lan": 1,
+      "dung": 2,
+      "can": 2,
+      "thieu": [],
+      "bia": [
+        "bao gồm Thiết bị cấp đông 5"
+      ],
+      "tool": [
+        "search_documentation"
+      ],
+      "giay": 8.7
+    },
+    {
+      "cau_hoi": "tên vị trí nguyên văn",
+      "lan": 1,
+      "dung": 2,
+      "can": 2,
+      "thieu": [],
+      "bia": [
+        "điện, cơ khí, điện lạnh..."
+      ],
+      "tool": [
+        "search_documentation"
+      ],
+      "giay": 21.8
+    },
+    {
+      "cau_hoi": "nói không có",
+      "lan": 1,
+      "dung": 1,
+      "can": 1,
+      "thieu": [],
+      "bia": [],
+      "tool": [
+        "search_documentation"
+      ],
+      "giay": 5.7
+    }
+  ]
+}

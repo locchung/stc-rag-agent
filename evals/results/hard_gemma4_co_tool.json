@@ -1,0 +1,200 @@
+{
+  "label": "hard_gemma4_co_tool",
+  "model": "gemma4:e2b",
+  "lan": 3,
+  "du_kien_dung": 54,
+  "du_kien_tong": 54,
+  "so_lan_khong_goi_tool": 0,
+  "so_chu_bia": 3,
+  "giay_trung_vi": 1.2,
+  "ghi_chu": "them tra_cuu_du_an va liet_ke_tin_tuc",
+  "luc": "2026-09-17T11:35:37",
+  "chi_tiet": [
+    {
+      "cau_hoi": "đếm PCCC",
+      "lan": 1,
+      "dung": 7,
+      "can": 7,
+      "thieu": [],
+      "bia": [],
+      "tool": [
+        "tra_cuu_du_an"
+      ],
+      "giay": 1.2
+    },
+    {
+      "cau_hoi": "đếm PCCC",
+      "lan": 2,
+      "dung": 7,
+      "can": 7,
+      "thieu": [],
+      "bia": [],
+      "tool": [
+        "tra_cuu_du_an"
+      ],
+      "giay": 0.6
+    },
+    {
+      "cau_hoi": "đếm PCCC",
+      "lan": 3,
+      "dung": 7,
+      "can": 7,
+      "thieu": [],
+      "bia": [],
+      "tool": [
+        "tra_cuu_du_an"
+      ],
+      "giay": 0.6
+    },
+    {
+      "cau_hoi": "liệt kê nhà máy sữa",
+      "lan": 1,
+      "dung": 6,
+      "can": 6,
+      "thieu": [],
+      "bia": [],
+      "tool": [
+        "tra_cuu_du_an"
+      ],
+      "giay": 1.2
+    },
+    {
+      "cau_hoi": "liệt kê nhà máy sữa",
+      "lan": 2,
+      "dung": 6,
+      "can": 6,
+      "thieu": [],
+      "bia": [],
+      "tool": [
+        "tra_cuu_du_an"
+      ],
+      "giay": 0.7
+    },
+    {
+      "cau_hoi": "liệt kê nhà máy sữa",
+      "lan": 3,
+      "dung": 6,
+      "can": 6,
+      "thieu": [],
+      "bia": [],
+      "tool": [
+        "tra_cuu_du_an"
+      ],
+      "giay": 0.7
+    },
+    {
+      "cau_hoi": "lĩnh vực nhiều nhất",
+      "lan": 1,
+      "dung": 2,
+      "can": 2,
+      "thieu": [],
+      "bia": [],
+      "tool": [
+        "tra_cuu_du_an"
+      ],
+      "giay": 1.0
+    },
+    {
+      "cau_hoi": "lĩnh vực nhiều nhất",
+      "lan": 2,
+      "dung": 2,
+      "can": 2,
+      "thieu": [],
+      "bia": [],
+      "tool": [
+        "tra_cuu_du_an"
+      ],
+      "giay": 0.4
+    },
+    {
+      "cau_hoi": "lĩnh vực nhiều nhất",
+      "lan": 3,
+      "dung": 2,
+      "can": 2,
+      "thieu": [],
+      "bia": [],
+      "tool": [
+        "tra_cuu_du_an"
+      ],
+      "giay": 0.4
+    },
+    {
+      "cau_hoi": "tên vị trí nguyên văn",
+      "lan": 1,
+      "dung": 2,
+      "can": 2,
+      "thieu": [],
+      "bia": [
+        "điện, cơ khí, điện lạnh..."
+      ],
+      "tool": [
+        "search_documentation"
+      ],
+      "giay": 20.1
+    },
+    {
+      "cau_hoi": "tên vị trí nguyên văn",
+      "lan": 2,
+      "dung": 2,
+      "can": 2,
+      "thieu": [],
+      "bia": [
+        "điện, cơ khí, điện lạnh..."
+      ],
+      "tool": [
+        "search_documentation"
+      ],
+      "giay": 27.9
+    },
+    {
+      "cau_hoi": "tên vị trí nguyên văn",
+      "lan": 3,
+      "dung": 2,
+      "can": 2,
+      "thieu": [],
+      "bia": [
+        "điện, cơ khí, điện lạnh..."
+      ],
+      "tool": [
+        "search_documentation"
+      ],
+      "giay": 86.1
+    },
+    {
+      "cau_hoi": "nói không có",
+      "lan": 1,
+      "dung": 1,
+      "can": 1,
+      "thieu": [],
+      "bia": [],
+      "tool": [
+        "tra_cuu_du_an"
+      ],
+      "giay": 3.7
+    },
+    {
+      "cau_hoi": "nói không có",
+      "lan": 2,
+      "dung": 1,
+      "can": 1,
+      "thieu": [],
+      "bia": [],
+      "tool": [
+        "tra_cuu_du_an"
+      ],
+      "giay": 1.6
+    },
+    {
+      "cau_hoi": "nói không có",
+      "lan": 3,
+      "dung": 1,
+      "can": 1,
+      "thieu": [],
+      "bia": [],
+      "tool": [
+        "tra_cuu_du_an"
+      ],
+      "giay": 2.0
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "label": "ans_qwen35_2b",
+  "k": 6,
+  "lan": 1,
+  "model": "qwen3.5:2b",
+  "tong_luot": 7,
+  "dung_du_kien": 7,
+  "so_chu_tu_them": 0,
+  "so_lan_bi_cat": 0,
+  "giay_trung_vi": 6.5,
+  "clean_version": 4,
+  "ghi_chu": "k=6, prompt that",
+  "luc": "2026-09-17T13:57:58",
+  "chi_tiet": [
+    {
+      "cau_hoi": "năm thành lập",
+      "lan": 1,
+      "dung": true,
+      "tu_them": [],
+      "do_dai": 41,
+      "done_reason": "stop",
+      "giay": 2.2
+    },
+    {
+      "cau_hoi": "công suất Củ Chi",
+      "lan": 1,
+      "dung": true,
+      "tu_them": [],
+      "do_dai": 94,
+      "done_reason": "stop",
+      "giay": 2.4
+    },
+    {
+      "cau_hoi": "trụ sở",
+      "lan": 1,
+      "dung": true,
+      "tu_them": [],
+      "do_dai": 95,
+      "done_reason": "stop",
+      "giay": 2.4
+    },
+    {
+      "cau_hoi": "email tuyển dụng",
+      "lan": 1,
+      "dung": true,
+      "tu_them": [],
+      "do_dai": 405,
+      "done_reason": "stop",
+      "giay": 6.7
+    },
+    {
+      "cau_hoi": "địa chỉ S.TECH",
+      "lan": 1,
+      "dung": true,
+      "tu_them": [],
+      "do_dai": 141,
+      "done_reason": "stop",
+      "giay": 6.5
+    },
+    {
+      "cau_hoi": "công suất Thiên Mã",
+      "lan": 1,
+      "dung": true,
+      "tu_them": [],
+      "do_dai": 59,
+      "done_reason": "stop",
+      "giay": 8.0
+    },
+    {
+      "cau_hoi": "sức chứa Trường Giang 2",
+      "lan": 1,
+      "dung": true,
+      "tu_them": [],
+      "do_dai": 97,
+      "done_reason": "stop",
+      "giay": 6.9
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+"""Cấu hình tập trung của dịch vụ RAG Seatecco.
+
+Mọi đường dẫn tính từ gốc repo nên chạy ở thư mục nào cũng ra cùng kết quả.
+Mọi thứ có thể đổi khi triển khai đều đọc được từ biến môi trường.
+"""
+import os
+from pathlib import Path
+import re
+from dotenv import load_dotenv
+
+load_dotenv()
+
+ROOT = Path(__file__).resolve().parents[2]
+
+# --- dữ liệu nguồn (track trong git) và artifact (không track) ---
+DOCBASE_DIR = ROOT / "data" / "raw"
+INDEX_DIR = ROOT / "var" / "index"
+STORE_PATH = INDEX_DIR / "store.json"
+MANIFEST_PATH = INDEX_DIR / "manifest.json"
+PDF_TONG_HOP = DOCBASE_DIR / "Thong tin tong hop Seatecco.pdf"
+
+
+def source_key(path) -> str:
+  """Khóa của một file trong manifest: đường dẫn tương đối gốc repo."""
+  return Path(path).resolve().relative_to(ROOT).as_posix()
+
+CHUNK_SIZE, CHUNK_OVERLAP = 1000, 200
+CLEAN_VERSION = 4
+CLEAN_CHANGELOG = {
+  1: "Optimize RAG",
+  2: "Build summary chunk",
+  3: "build list documents",
+  4: "bug fixing: generate redundant chunks"
+}
+SECTION_RE = re.compile(r"^(PHẦN \d+\..*|\d+\.\d+\..*)$", re.M)
+
+DOC_TITLES = {source_key(PDF_TONG_HOP): "Thông tin tổng hợp Seatecco"}
+PROJECT_TABLE_TITLE = "5.1. Bảng tổng hợp danh mục dự án"
+
+# --- embedding và chia chunk ---
+EMBED_MODEL = os.getenv("SEATECCO_EMBED_MODEL", "qwen3-embedding:0.6b")
+EMBED_NUM_CTX = int(os.getenv("SEATECCO_EMBED_NUM_CTX", "2048"))
+
+# Ghi vào manifest: đổi bất kỳ giá trị nào ở đây là index bị dựng lại toàn bộ.
+INDEX_CONFIG = {
+  "embedding_model": EMBED_MODEL,
+  "chunk_size": CHUNK_SIZE,
+  "chunk_overlap": CHUNK_OVERLAP,
+  "clean_version": CLEAN_VERSION,
+}
+
+# --- model trả lời ---
+LLM_MODEL = os.getenv("SEATECCO_LLM_MODEL", "qwen3.5:2b")
+LLM_NUM_CTX = int(os.getenv("SEATECCO_LLM_NUM_CTX", "16384"))
+LLM_NUM_PREDICT = int(os.getenv("SEATECCO_LLM_NUM_PREDICT", "1500"))
+LLM_TEMPERATURE = float(os.getenv("SEATECCO_LLM_TEMPERATURE", "0"))
+KEEP_ALIVE = int(os.getenv("SEATECCO_KEEP_ALIVE", "1800"))
+
+# --- truy xuất ---
+SEARCH_K = int(os.getenv("SEATECCO_SEARCH_K", "6"))
+SEARCH_CANDIDATES = int(os.getenv("SEATECCO_SEARCH_CANDIDATES", "12"))

@@ -1,0 +1,194 @@
+{
+  "label": "hard_gemma4_full_tool",
+  "model": "gemma4:e2b",
+  "lan": 3,
+  "du_kien_dung": 54,
+  "du_kien_tong": 54,
+  "so_lan_khong_goi_tool": 0,
+  "so_chu_bia": 0,
+  "giay_trung_vi": 0.6,
+  "ghi_chu": "them liet_ke_tuyen_dung, num_predict 1500",
+  "luc": "2026-09-17T11:40:56",
+  "chi_tiet": [
+    {
+      "cau_hoi": "đếm PCCC",
+      "lan": 1,
+      "dung": 7,
+      "can": 7,
+      "thieu": [],
+      "bia": [],
+      "tool": [
+        "tra_cuu_du_an"
+      ],
+      "giay": 1.4
+    },
+    {
+      "cau_hoi": "đếm PCCC",
+      "lan": 2,
+      "dung": 7,
+      "can": 7,
+      "thieu": [],
+      "bia": [],
+      "tool": [
+        "tra_cuu_du_an"
+      ],
+      "giay": 0.6
+    },
+    {
+      "cau_hoi": "đếm PCCC",
+      "lan": 3,
+      "dung": 7,
+      "can": 7,
+      "thieu": [],
+      "bia": [],
+      "tool": [
+        "tra_cuu_du_an"
+      ],
+      "giay": 0.6
+    },
+    {
+      "cau_hoi": "liệt kê nhà máy sữa",
+      "lan": 1,
+      "dung": 6,
+      "can": 6,
+      "thieu": [],
+      "bia": [],
+      "tool": [
+        "tra_cuu_du_an"
+      ],
+      "giay": 0.7
+    },
+    {
+      "cau_hoi": "liệt kê nhà máy sữa",
+      "lan": 2,
+      "dung": 6,
+      "can": 6,
+      "thieu": [],
+      "bia": [],
+      "tool": [
+        "tra_cuu_du_an"
+      ],
+      "giay": 0.7
+    },
+    {
+      "cau_hoi": "liệt kê nhà máy sữa",
+      "lan": 3,
+      "dung": 6,
+      "can": 6,
+      "thieu": [],
+      "bia": [],
+      "tool": [
+        "tra_cuu_du_an"
+      ],
+      "giay": 0.7
+    },
+    {
+      "cau_hoi": "lĩnh vực nhiều nhất",
+      "lan": 1,
+      "dung": 2,
+      "can": 2,
+      "thieu": [],
+      "bia": [],
+      "tool": [
+        "tra_cuu_du_an"
+      ],
+      "giay": 0.4
+    },
+    {
+      "cau_hoi": "lĩnh vực nhiều nhất",
+      "lan": 2,
+      "dung": 2,
+      "can": 2,
+      "thieu": [],
+      "bia": [],
+      "tool": [
+        "tra_cuu_du_an"
+      ],
+      "giay": 0.4
+    },
+    {
+      "cau_hoi": "lĩnh vực nhiều nhất",
+      "lan": 3,
+      "dung": 2,
+      "can": 2,
+      "thieu": [],
+      "bia": [],
+      "tool": [
+        "tra_cuu_du_an"
+      ],
+      "giay": 0.4
+    },
+    {
+      "cau_hoi": "tên vị trí nguyên văn",
+      "lan": 1,
+      "dung": 2,
+      "can": 2,
+      "thieu": [],
+      "bia": [],
+      "tool": [
+        "liet_ke_tuyen_dung"
+      ],
+      "giay": 0.5
+    },
+    {
+      "cau_hoi": "tên vị trí nguyên văn",
+      "lan": 2,
+      "dung": 2,
+      "can": 2,
+      "thieu": [],
+      "bia": [],
+      "tool": [
+        "liet_ke_tuyen_dung"
+      ],
+      "giay": 0.4
+    },
+    {
+      "cau_hoi": "tên vị trí nguyên văn",
+      "lan": 3,
+      "dung": 2,
+      "can": 2,
+      "thieu": [],
+      "bia": [],
+      "tool": [
+        "liet_ke_tuyen_dung"
+      ],
+      "giay": 0.4
+    },
+    {
+      "cau_hoi": "nói không có",
+      "lan": 1,
+      "dung": 1,
+      "can": 1,
+      "thieu": [],
+      "bia": [],
+      "tool": [
+        "tra_cuu_du_an"
+      ],
+      "giay": 0.7
+    },
+    {
+      "cau_hoi": "nói không có",
+      "lan": 2,
+      "dung": 1,
+      "can": 1,
+      "thieu": [],
+      "bia": [],
+      "tool": [
+        "tra_cuu_du_an"
+      ],
+      "giay": 0.7
+    },
+    {
+      "cau_hoi": "nói không có",
+      "lan": 3,
+      "dung": 1,
+      "can": 1,
+      "thieu": [],
+      "bia": [],
+      "tool": [
+        "tra_cuu_du_an"
+      ],
+      "giay": 0.7
+    }
+  ]
+}
