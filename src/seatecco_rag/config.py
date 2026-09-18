@@ -59,7 +59,9 @@ LLM_NUM_CTX = int(os.getenv("SEATECCO_LLM_NUM_CTX", "16384"))
 LLM_NUM_PREDICT = int(os.getenv("SEATECCO_LLM_NUM_PREDICT", "1500"))
 LLM_TEMPERATURE = float(os.getenv("SEATECCO_LLM_TEMPERATURE", "0"))
 KEEP_ALIVE = int(os.getenv("SEATECCO_KEEP_ALIVE", "1800"))
-LLM_MAX_RETRIES = int(os.getenv("SEATECCO_LLM_MAX_RETRIES", "2"))
+# 1 chứ không 2: retry chỉ hữu ích cho 429, mà rơi xuống Ollama local nhanh còn
+# tốt hơn là để khách chờ. Xấu nhất giờ là 2 * LLM_TIMEOUT = 30s rồi mới fallback.
+LLM_MAX_RETRIES = int(os.getenv("SEATECCO_LLM_MAX_RETRIES", "1"))
 # Timeout biến "lỗi chậm" (server im lặng) thành exception để fallback bắt được.
 # Xấu nhất = (1 + LLM_MAX_RETRIES) * LLM_TIMEOUT giây trước khi rơi sang model dự bị.
 LLM_TIMEOUT = float(os.getenv("SEATECCO_LLM_TIMEOUT", "15"))

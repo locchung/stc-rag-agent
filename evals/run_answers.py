@@ -80,7 +80,8 @@ MODEL_ID = model_id(app.llm)
 
 SYSTEM = app.SYSTEM_PROMPT   # dùng đúng prompt mà agent thật đang chạy
 
-manifest = json.loads((ROOT / ".vectorstore/manifest.json").read_text(encoding="utf-8"))
+from seatecco_rag.config import MANIFEST_PATH        # noqa: E402
+manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
 clean_version = manifest["config"].get("clean_version", 0)
 label = args.label or f"ans_v{clean_version}_k{args.k}"
 

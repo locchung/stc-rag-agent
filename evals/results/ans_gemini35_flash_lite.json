@@ -1,0 +1,142 @@
+{
+  "label": "ans_gemini35_flash_lite",
+  "k": 6,
+  "lan": 2,
+  "model": "gemini-3.5-flash-lite",
+  "tong_luot": 14,
+  "dung_du_kien": 12,
+  "so_chu_tu_them": 0,
+  "so_lan_bi_cat": 0,
+  "giay_trung_vi": 1.0,
+  "clean_version": 4,
+  "ghi_chu": "free tier, k=6",
+  "luc": "2026-09-18T11:06:48",
+  "chi_tiet": [
+    {
+      "cau_hoi": "năm thành lập",
+      "lan": 1,
+      "dung": true,
+      "tu_them": [],
+      "do_dai": 166,
+      "done_reason": null,
+      "giay": 1.1
+    },
+    {
+      "cau_hoi": "năm thành lập",
+      "lan": 2,
+      "dung": true,
+      "tu_them": [],
+      "do_dai": 166,
+      "done_reason": null,
+      "giay": 1.2
+    },
+    {
+      "cau_hoi": "công suất Củ Chi",
+      "lan": 1,
+      "dung": true,
+      "tu_them": [],
+      "do_dai": 613,
+      "done_reason": null,
+      "giay": 1.1
+    },
+    {
+      "cau_hoi": "công suất Củ Chi",
+      "lan": 2,
+      "dung": false,
+      "tu_them": [],
+      "do_dai": 84,
+      "done_reason": null,
+      "giay": 0.8
+    },
+    {
+      "cau_hoi": "trụ sở",
+      "lan": 1,
+      "dung": true,
+      "tu_them": [],
+      "do_dai": 85,
+      "done_reason": null,
+      "giay": 0.9
+    },
+    {
+      "cau_hoi": "trụ sở",
+      "lan": 2,
+      "dung": true,
+      "tu_them": [],
+      "do_dai": 85,
+      "done_reason": null,
+      "giay": 0.9
+    },
+    {
+      "cau_hoi": "email tuyển dụng",
+      "lan": 1,
+      "dung": true,
+      "tu_them": [],
+      "do_dai": 109,
+      "done_reason": null,
+      "giay": 1.0
+    },
+    {
+      "cau_hoi": "email tuyển dụng",
+      "lan": 2,
+      "dung": true,
+      "tu_them": [],
+      "do_dai": 105,
+      "done_reason": null,
+      "giay": 0.9
+    },
+    {
+      "cau_hoi": "địa chỉ S.TECH",
+      "lan": 1,
+      "dung": true,
+      "tu_them": [],
+      "do_dai": 156,
+      "done_reason": null,
+      "giay": 0.9
+    },
+    {
+      "cau_hoi": "địa chỉ S.TECH",
+      "lan": 2,
+      "dung": true,
+      "tu_them": [],
+      "do_dai": 134,
+      "done_reason": null,
+      "giay": 1.1
+    },
+    {
+      "cau_hoi": "công suất Thiên Mã",
+      "lan": 1,
+      "dung": true,
+      "tu_them": [],
+      "do_dai": 59,
+      "done_reason": null,
+      "giay": 1.0
+    },
+    {
+      "cau_hoi": "công suất Thiên Mã",
+      "lan": 2,
+      "dung": false,
+      "tu_them": [],
+      "do_dai": 110,
+      "done_reason": null,
+      "giay": 1.1
+    },
+    {
+      "cau_hoi": "sức chứa Trường Giang 2",
+      "lan": 1,
+      "dung": true,
+      "tu_them": [],
+      "do_dai": 72,
+      "done_reason": null,
+      "giay": 1.0
+    },
+    {
+      "cau_hoi": "sức chứa Trường Giang 2",
+      "lan": 2,
+      "dung": true,
+      "tu_them": [],
+      "do_dai": 72,
+      "done_reason": null,
+      "giay": 1.1
+    }
+  ]
+}
