@@ -49,3 +49,22 @@ def test_model_id_doc_duoc_ca_hai_kieu_thuoc_tinh():
     model_name = "gpt-4o"
 
   assert providers.model_id(GiaLapOpenAI()) == "gpt-4o"
+
+
+def test_timeout_duoc_dat_cho_moi_hang(monkeypatch):
+  """Không có timeout thì server im lặng = khách treo, và fallback không bao giờ chạy."""
+  monkeypatch.setenv("GOOGLE_API_KEY", "khoa-test")
+  monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+  from seatecco_rag import config
+
+  g = providers.get_chat_model("google_genai", "gemini-3.5-flash-lite")
+  assert g.timeout == config.LLM_TIMEOUT                 # field tên "timeout"
+
+  o = providers.get_chat_model("openai", "gpt-4o-mini")
+  assert o.request_timeout == config.LLM_TIMEOUT         # field tên khác, nhận qua alias
+
+
+def test_ollama_khong_can_timeout():
+  # gọi local, không qua mạng nên ChatOllama không có field timeout
+  from langchain_ollama import ChatOllama
+  assert "timeout" not in ChatOllama.model_fields

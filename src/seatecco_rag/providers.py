@@ -28,10 +28,14 @@ def _api_chat(model: str, provider: str) -> BaseChatModel:
   from langchain.chat_models import init_chat_model
   # max_retries: provider tự retry có backoff khi 429/5xx. Không dùng .with_retry()
   # vì RunnableRetry KHÔNG có bind_tools, agent sẽ vỡ.
+  # timeout: cả ba hãng nhận được cùng tên này dù field bên trong khác nhau
+  # (ChatOpenAI.request_timeout, ChatAnthropic.default_request_timeout,
+  # ChatGoogleGenerativeAI.timeout) - hai cái đầu qua alias "timeout".
   return init_chat_model(model, model_provider=provider,
                          temperature=config.LLM_TEMPERATURE,
                          max_tokens=config.LLM_NUM_PREDICT,
-                         max_retries=config.LLM_MAX_RETRIES)
+                         max_retries=config.LLM_MAX_RETRIES,
+                         timeout=config.LLM_TIMEOUT)
 
 
 CHAT_BUILDERS = {
