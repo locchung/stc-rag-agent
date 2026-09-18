@@ -29,7 +29,10 @@ DOCBASE_DIR = ROOT / "data" / "raw"
 INDEX_DIR = ROOT / "var" / "index"
 STORE_PATH = INDEX_DIR / "store.json"
 MANIFEST_PATH = INDEX_DIR / "manifest.json"
-REQUEST_LOG = ROOT / "var" / "logs" / "requests.jsonl"
+# Đặt SEATECCO_REQUEST_LOG= (rỗng) để tắt ghi file - trên Cloud Run đĩa là tạm và
+# tính vào RAM, log đi theo stdout là đủ vì nền tảng tự thu.
+_log = os.getenv("SEATECCO_REQUEST_LOG", str(ROOT / "var" / "logs" / "requests.jsonl"))
+REQUEST_LOG = Path(_log) if _log.strip() else None
 
 # --- cổng HTTP ---
 # Để trống là TẮT xác thực (chỉ dùng khi chạy máy mình). Đặt khoá trước khi mở ra Internet.

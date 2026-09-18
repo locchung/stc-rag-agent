@@ -54,3 +54,25 @@ def test_cong_don_token():
           tin_nhan(usage_metadata={"input_tokens": 4057, "output_tokens": 83}),
           tin_nhan()]
   assert telemetry.token_usage(msgs) == (4873, 107)
+
+
+def test_luon_in_ra_stdout(tmp_path, capsys):
+  """stdout là đường chính: Cloud Run và mọi nền tảng khác tự thu từ đó."""
+  telemetry.log_request({"cau_hoi": "x", "tool": ["tra_cuu_du_an"]}, path=tmp_path / "r.jsonl")
+  ra = capsys.readouterr().out.strip()
+  assert json.loads(ra)["tool"] == ["tra_cuu_du_an"]
+
+
+def test_tat_ghi_file_van_in_stdout(monkeypatch, capsys):
+  from seatecco_rag import config
+  monkeypatch.setattr(config, "REQUEST_LOG", None)
+  telemetry.log_request({"cau_hoi": "x"})
+  assert json.loads(capsys.readouterr().out.strip())["cau_hoi"] == "x"
+
+
+def test_ghi_file_hong_khong_lam_hong_cau_tra_loi(tmp_path, capsys):
+  # đĩa chỉ đọc hoặc hết chỗ là chuyện thường trên container
+  cham = tmp_path / "la-file" 
+  cham.write_text("không phải thư mục", encoding="utf-8")
+  telemetry.log_request({"cau_hoi": "x"}, path=cham / "r.jsonl")   # không được ném lỗi
+  assert "cau_hoi" in capsys.readouterr().out
