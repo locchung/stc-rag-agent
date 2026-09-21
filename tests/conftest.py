@@ -13,3 +13,12 @@ os.environ["LANGSMITH_TRACING"] = "false"
 os.environ["LANGCHAIN_TRACING_V2"] = "false"
 os.environ.pop("LANGCHAIN_API_KEY", None)
 os.environ.pop("LANGSMITH_API_KEY", None)
+
+# Không cho .env của máy dev lọt vào bộ test. config.py gọi load_dotenv() lúc import,
+# nên một dòng như SEATECCO_SEARCH_MIN_SCORE=0.521 trong .env đã làm ba test truy
+# xuất đỏ trên máy này mà vẫn xanh trên CI - cùng một code, hai kết quả. Vô hiệu nó
+# ở đây vì conftest chạy TRƯỚC khi file test nào import seatecco_rag.
+import dotenv  # noqa: E402
+
+dotenv.load_dotenv = lambda *args, **kwargs: False
+

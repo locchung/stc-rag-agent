@@ -1,0 +1,102 @@
+# Deploy dịch vụ RAG lên Cloud Run mỗi khi push lên master.
+#
+#   test -> dựng index -> build image -> push -> deploy KHÔNG nhận traffic
+#        -> kiểm /health trên bản mới -> chuyển traffic sang bản mới
+#
+# Bản mới chỉ nhận khách SAU KHI /health xác nhận nó chạy đúng provider và có bật
+# xác thực. Hỏng ở bất kỳ bước nào thì bản cũ vẫn phục vụ như chưa có gì xảy ra.
+#
+# Xác thực bằng Workload Identity Federation: GitHub xin token ngắn hạn qua OIDC,
+# không có khoá service account dài hạn nào nằm trong GitHub. Thiết lập một lần bằng
+# scripts/setup-github-deploy.sh.
+
+name: Deploy lên Cloud Run
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+# Hai lần push sát nhau thì xếp hàng, đừng huỷ một lần deploy đang chạy dở.
+concurrency:
+  group: deploy-cloud-run
+  cancel-in-progress: false
+
+env:
+  PROJECT_ID: seatecco-rag
+  REGION: asia-southeast1
+  SERVICE: seatecco-rag
+  IMAGE: asia-southeast1-docker.pkg.dev/seatecco-rag/seatecco/rag
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --frozen
+      # Bộ test kín: không gọi Ollama, không gọi Gemini, không cần secret nào.
+      - run: uv run pytest
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write          # để xin token OIDC cho Workload Identity Federation
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --frozen
+
+      # var/ nằm trong .gitignore nên index KHÔNG có trong repo: phải dựng ở đây rồi
+      # mới nướng vào image. Cache theo PDF + code ingest; trúng cache thì manifest
+      # thấy sha256 không đổi và không embed lại chunk nào.
+      - uses: actions/cache@v4
+        with:
+          path: var/index
+          key: index-${{ hashFiles('data/raw/**', 'src/seatecco_rag/config.py', 'src/seatecco_rag/ingest/**') }}
+      - name: Dựng index
+        run: uv run python -m seatecco_rag.ingest.index
+        env:
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SA }}
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Build và push image
+        run: |
+          gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
+          docker build --target selfcontained -t "$IMAGE:$GITHUB_SHA" .
+          docker push "$IMAGE:$GITHUB_SHA"
+
+      # --no-traffic: revision mới chạy nhưng khách vẫn ở bản cũ. --tag cho nó một URL
+      # riêng để kiểm trước khi chuyển.
+      - name: Deploy (chưa nhận traffic)
+        run: |
+          gcloud run deploy "$SERVICE" --image "$IMAGE:$GITHUB_SHA" --region "$REGION" \
+            --no-traffic --tag candidate --quiet
+
+      # Không chỉ hỏi "có sống không". Từng có lần service trả lời đúng hoàn toàn mà
+      # thật ra đang chạy bằng MODEL DỰ BỊ vì config khai báo trùng provider - chỉ
+      # /health lộ ra điều đó. auth == true bắt trường hợp secret API key bị rơi.
+      - name: Kiểm /health trên bản mới
+        run: |
+          URL=$(gcloud run services describe "$SERVICE" --region "$REGION" --format='value(status.url)')
+          CANDIDATE="${URL/https:\/\//https://candidate---}"
+          for i in 1 2 3 4 5 6; do
+            if BODY=$(curl -fsS --max-time 30 "$CANDIDATE/health"); then break; fi
+            echo "chưa sẵn sàng, thử lại sau 10s ($i/6)"; sleep 10
+          done
+          echo "$BODY"
+          echo "$BODY" | jq -e '.ok == true and .provider == "google_genai" and .auth == true'
+
+      - name: Chuyển traffic sang bản mới
+        run: gcloud run services update-traffic "$SERVICE" --region "$REGION" --to-latest --quiet
