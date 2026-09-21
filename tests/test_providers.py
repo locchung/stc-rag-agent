@@ -68,3 +68,36 @@ def test_ollama_khong_can_timeout():
   # gọi local, không qua mạng nên ChatOllama không có field timeout
   from langchain_ollama import ChatOllama
   assert "timeout" not in ChatOllama.model_fields
+
+
+def test_config_khong_gan_trung_ten():
+  """Không hằng số nào được gán hai lần trong config.py.
+
+  Từng có hai dòng LLM_PROVIDER/EMBED_PROVIDER sót lại ở cuối file, âm thầm kéo
+  mặc định về "ollama" và phủ định chính commit đã đổi sang Gemini. Lỗi kiểu này
+  không hiện ra ở bất cứ test nào khác vì cả hai dòng đọc CÙNG một biến môi
+  trường: chỉ khi không đặt biến thì mặc định mới lệch.
+  """
+  import re
+  from collections import Counter
+  from pathlib import Path
+
+  src = Path(providers.config.__file__).read_text(encoding="utf-8")
+  ten = re.findall(r"^([A-Z_][A-Z0-9_]*)\s*=", src, re.M)
+  trung = sorted(n for n, so_lan in Counter(ten).items() if so_lan > 1)
+  assert trung == [], f"gán trùng trong config.py: {trung}"
+
+
+def test_mac_dinh_la_gemini_khong_phai_ollama(monkeypatch):
+  """Mặc định phải khớp README và docker-compose: không cần Ollama để phục vụ."""
+  import importlib
+  for bien in ("SEATECCO_LLM_PROVIDER", "SEATECCO_EMBED_PROVIDER"):
+    monkeypatch.delenv(bien, raising=False)
+  monkeypatch.setattr("dotenv.load_dotenv", lambda *a, **k: False)   # bỏ qua .env của máy
+
+  config = importlib.reload(providers.config)
+  try:
+    assert config.LLM_PROVIDER == "google_genai"
+    assert config.EMBED_PROVIDER == "google_genai"
+  finally:
+    importlib.reload(providers.config)      # trả lại giá trị thật cho các test sau

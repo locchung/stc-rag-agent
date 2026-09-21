@@ -195,7 +195,7 @@ Trước khi mở ra Internet, kiểm ba việc:
 ## Kiểm tra
 
 ```bash
-pytest                       # 77 test: parser, tool, chunk, ngưỡng, provider, log. ~12s, không gọi mạng
+pytest                       # 79 test: parser, tool, chunk, ngưỡng, provider, log. ~12s, không gọi mạng
 python evals/run_routing.py --lan 2 --label thu_nghiem_moi    # model chọn đúng tool?
 python evals/run_hard.py --lan 2 --label thu_nghiem_moi       # đếm, liệt kê, nói không có
 python evals/run_calibration.py --chi-diem                    # ngưỡng nên đặt bao nhiêu?

@@ -107,6 +107,3 @@ SEARCH_CANDIDATES = int(os.getenv("SEATECCO_SEARCH_CANDIDATES", "12"))
 # PHẢI đo trên index thật trước khi bật:
 #     python evals/run_calibration.py --chi-diem
 SEARCH_MIN_SCORE = float(os.getenv("SEATECCO_SEARCH_MIN_SCORE", "0"))
-
-LLM_PROVIDER = os.getenv("SEATECCO_LLM_PROVIDER", "ollama")
-EMBED_PROVIDER = os.getenv("SEATECCO_EMBED_PROVIDER", "ollama")
