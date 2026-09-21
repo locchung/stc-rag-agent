@@ -26,7 +26,8 @@ def tra_cuu_du_an(linh_vuc: str = "", hang_muc: str = "", dia_diem: str = "") ->
   Args:
       linh_vuc: ví dụ "Lạnh công nghiệp", "MEPF", "HVAC". Để trống nếu không lọc.
       hang_muc: ví dụ "PCCC", "Kho lạnh", "Nhà máy sữa". Để trống nếu không lọc.
-      dia_diem: ví dụ "Đà Nẵng", "Đồng Tháp". Để trống nếu không lọc.
+      dia_diem: ví dụ "Đà Nẵng", "Nha Trang". Khớp cả địa điểm lẫn tên dự án, và
+          không cần dấu tiếng Việt. Để trống nếu không lọc.
   """
   rows_all = catalog.project_rows()
 
@@ -40,25 +41,15 @@ def tra_cuu_du_an(linh_vuc: str = "", hang_muc: str = "", dia_diem: str = "") ->
             + NL + "Dùng bộ lọc linh_vuc, hang_muc hoặc dia_diem để xem danh sách chi tiết."
             + NL + "[Nguồn: PHẦN 5. DANH MỤC 119 DỰ ÁN TIÊU BIỂU]")
 
+  # Địa điểm khớp cả cột địa điểm LẪN tên dự án. Tên tiếng Việt hay gắn sẵn địa danh
+  # ("Hồng Phát, Nha Trang") trong khi cột địa điểm chỉ ghi tỉnh ("Tỉnh Khánh Hòa"),
+  # còn khách thì hỏi theo tên thành phố. Đã đo trên cả bảng: gộp như vậy KHÔNG làm
+  # phồng số đếm - mọi nơi đều giữ nguyên số, chỉ Nha Trang 0->1 và Hồ Chí Minh 4->5
+  # (Cocacola TP Hồ Chí Minh ghi địa điểm "TP Thủ Đức", vốn thuộc TP.HCM thật).
   rows = [r for r in rows_all
           if chua(linh_vuc, r["linh_vuc"])
           and chua(hang_muc, r["hang_muc"])
-          and chua(dia_diem, r["dia_diem"])]
-
-  # Tên dự án tiếng Việt hay gắn sẵn địa danh ("Hồng Phát, Nha Trang") trong khi cột
-  # địa điểm chỉ ghi tên tỉnh ("Tỉnh Khánh Hòa"). Người dùng hỏi theo tên thành phố,
-  # nên khi lọc theo địa điểm không ra gì thì thử khớp TÊN - và nói rõ là đang trả
-  # lời theo tên, để không ai tưởng đó là số dự án ở địa phương đó.
-  if not rows and dia_diem:
-    theo_ten = [r for r in rows_all
-                if chua(dia_diem, r["ten"])
-                and chua(linh_vuc, r["linh_vuc"])
-                and chua(hang_muc, r["hang_muc"])]
-    if theo_ten:
-      dong = [f"{i}. {r['ten']} — {r['hang_muc']} ({r['linh_vuc']}) — {r['dia_diem']}"
-              for i, r in enumerate(theo_ten, 1)]
-      return (f"Không có dự án nào ghi địa điểm '{dia_diem}'. "
-              f"Có {len(theo_ten)} dự án mà TÊN chứa '{dia_diem}':" + NL + NL.join(dong))
+          and chua(dia_diem, r["dia_diem"] + " " + r["ten"])]
 
   if not rows:
     tu_khoa = " ".join(x for x in (linh_vuc, hang_muc, dia_diem) if x) or "(không lọc)"

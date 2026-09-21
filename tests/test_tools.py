@@ -71,12 +71,22 @@ def test_go_khong_dau_van_ra_ket_qua():
   assert goi(tra_cuu_du_an, dia_diem="da nang").startswith("Seatecco có 38 dự án")
 
 
-def test_dia_danh_nam_trong_TEN_du_an_thi_noi_ro():
-  # "Nha Trang" không hề có trong cột địa điểm; nó nằm trong tên "Hồng Phát, Nha Trang"
+def test_dia_danh_chi_nam_trong_TEN_du_an_van_tinh_la_o_do():
+  """"Nha Trang" không hề có trong cột địa điểm, chỉ nằm trong tên dự án.
+
+  Với người dùng thì "Hồng Phát, Nha Trang" LÀ một dự án ở Nha Trang; phân biệt
+  chữ đó nằm ở cột nào là chuyện nội bộ, không phải chuyện của khách.
+  """
   out = goi(tra_cuu_du_an, dia_diem="Nha Trang")
-  assert "Không có dự án nào ghi địa điểm 'Nha Trang'" in out
-  assert "TÊN chứa 'Nha Trang'" in out
+  assert out.startswith("Seatecco có 1 dự án ở Nha Trang:")
   assert "Hồng Phát, Nha Trang" in out
+
+
+def test_dia_diem_ghi_ten_quan_van_tinh_vao_thanh_pho():
+  # Cocacola TP Hồ Chí Minh ghi địa điểm "TP Thủ Đức" - Thủ Đức thuộc TP.HCM
+  out = goi(tra_cuu_du_an, dia_diem="Hồ Chí Minh")
+  assert out.startswith("Seatecco có 5 dự án")
+  assert "Cocacola TP Hồ Chí Minh" in out
 
 
 def test_dia_diem_hoan_toan_khong_co_thi_goi_y_dia_diem_khac():
