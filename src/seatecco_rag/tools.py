@@ -8,6 +8,7 @@ from collections import Counter
 from langchain.tools import tool
 
 from . import catalog, retrieval
+from .text import chua, chuan_hoa
 
 NL = chr(10)
 
@@ -40,11 +41,39 @@ def tra_cuu_du_an(linh_vuc: str = "", hang_muc: str = "", dia_diem: str = "") ->
             + NL + "[Nguồn: PHẦN 5. DANH MỤC 119 DỰ ÁN TIÊU BIỂU]")
 
   rows = [r for r in rows_all
-          if linh_vuc.lower() in r["linh_vuc"].lower()
-          and hang_muc.lower() in r["hang_muc"].lower()
-          and dia_diem.lower() in r["dia_diem"].lower()]
+          if chua(linh_vuc, r["linh_vuc"])
+          and chua(hang_muc, r["hang_muc"])
+          and chua(dia_diem, r["dia_diem"])]
+
+  # Tên dự án tiếng Việt hay gắn sẵn địa danh ("Hồng Phát, Nha Trang") trong khi cột
+  # địa điểm chỉ ghi tên tỉnh ("Tỉnh Khánh Hòa"). Người dùng hỏi theo tên thành phố,
+  # nên khi lọc theo địa điểm không ra gì thì thử khớp TÊN - và nói rõ là đang trả
+  # lời theo tên, để không ai tưởng đó là số dự án ở địa phương đó.
+  if not rows and dia_diem:
+    theo_ten = [r for r in rows_all
+                if chua(dia_diem, r["ten"])
+                and chua(linh_vuc, r["linh_vuc"])
+                and chua(hang_muc, r["hang_muc"])]
+    if theo_ten:
+      dong = [f"{i}. {r['ten']} — {r['hang_muc']} ({r['linh_vuc']}) — {r['dia_diem']}"
+              for i, r in enumerate(theo_ten, 1)]
+      return (f"Không có dự án nào ghi địa điểm '{dia_diem}'. "
+              f"Có {len(theo_ten)} dự án mà TÊN chứa '{dia_diem}':" + NL + NL.join(dong))
+
   if not rows:
     tu_khoa = " ".join(x for x in (linh_vuc, hang_muc, dia_diem) if x) or "(không lọc)"
+    if dia_diem:
+      # hỏi theo địa điểm thì liệt kê địa điểm, đừng liệt kê lĩnh vực
+      # gộp các cách ghi của cùng một nơi ("TP Đà Nẵng" và "Tp Đà Nẵng"), hiển thị
+      # bằng cách ghi phổ biến nhất
+      gop: dict[str, Counter] = {}
+      for r in rows_all:
+        if r["dia_diem"]:
+          gop.setdefault(chuan_hoa(r["dia_diem"]), Counter())[r["dia_diem"]] += 1
+      pho_bien = sorted(gop.values(), key=lambda c: -sum(c.values()))[:10]
+      goi_y = "; ".join(f"{c.most_common(1)[0][0]} ({sum(c.values())})" for c in pho_bien)
+      return (f"Không có dự án nào ở '{dia_diem}' trong dữ liệu. "
+              f"Các địa điểm có nhiều dự án nhất: {goi_y}.")
     return (f"Không có dự án nào khớp với '{tu_khoa}' trong dữ liệu. "
             f"Lĩnh vực hiện có: {', '.join(catalog.linh_vuc())}. "
             f"Hạng mục hiện có: {', '.join(catalog.hang_muc())}.")
@@ -64,7 +93,7 @@ def liet_ke_tin_tuc(tu_khoa: str = "") -> str:
       tu_khoa: lọc theo từ khóa trong tiêu đề. Để trống để lấy tất cả.
   """
   tat_ca = catalog.news()
-  bai = [b for b in tat_ca if tu_khoa.lower() in b["tieu_de"].lower()]
+  bai = [b for b in tat_ca if chua(tu_khoa, b["tieu_de"])]
   if not bai:
     return f"Không có bài tin tức nào chứa '{tu_khoa}'. Tổng số bài hiện có: {len(tat_ca)}."
   dong = [f"{i}. {b['tieu_de']} ({b['meta']})" for i, b in enumerate(bai, 1)]
@@ -85,7 +114,7 @@ def liet_ke_tuyen_dung(tu_khoa: str = "") -> str:
   """
   tat_ca = catalog.jobs()
   # khớp cả nội dung, để tu_khoa="lương" không trả về rỗng khi dữ liệu thật có
-  tin = [j for j in tat_ca if tu_khoa.lower() in (j["tieu_de"] + j["noi_dung"]).lower()]
+  tin = [j for j in tat_ca if chua(tu_khoa, j["tieu_de"] + j["noi_dung"])]
   if not tin:
     return f"Không có tin tuyển dụng nào chứa '{tu_khoa}'. Hiện có {len(tat_ca)} tin tuyển dụng."
   phan = [f"{i}. {j['tieu_de']}" + NL + j["meta"] + NL + j["noi_dung"]
