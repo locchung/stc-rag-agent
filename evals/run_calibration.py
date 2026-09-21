@@ -32,9 +32,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 os.environ.setdefault("LANGSMITH_TRACING", "false")
 os.environ.setdefault("LANGCHAIN_TRACING_V2", "false")
 
+from seatecco_rag.prompts import la_noi_khong_biet
 from evals.harness import RESULTS, answer_scores
 from evals.case.questions import (FACT_CASES, OUT_OF_SCOPE_CASES, SECTION_CASES,
-                                  check_facts, la_noi_khong_biet)
+                                  check_facts)
 
 NL = chr(10)
 

@@ -181,10 +181,51 @@ export async function POST(req: Request) {
 }
 ```
 
+### Google Cloud Run
+
+Dịch vụ nay chỉ 150MiB và khởi động trong 3,4 giây, nên chạy được trên nền tảng
+scale-to-zero. Free tier vĩnh viễn: 2 triệu request, 180.000 vCPU-giây, 360.000 GB-giây
+mỗi tháng - với ~2 giây mỗi câu hỏi thì khoảng **90.000 câu/tháng miễn phí**.
+
+Cloud Run không có đĩa bền, nên dùng target `selfcontained`: index được nướng vào image.
+
+```bash
+# một lần
+gcloud auth login
+gcloud config set project <PROJECT_ID>
+gcloud services enable run.googleapis.com artifactregistry.googleapis.com secretmanager.googleapis.com
+gcloud artifacts repositories create seatecco --repository-format=docker --location=asia-southeast1
+gcloud auth configure-docker asia-southeast1-docker.pkg.dev
+
+# khoá không để trong --set-env-vars (ai xem được console là thấy)
+printf '%s' "KHOA_GEMINI"   | gcloud secrets create GOOGLE_API_KEY --data-file=-
+printf '%s' "KHOA_CUA_BAN"  | gcloud secrets create SEATECCO_API_KEY --data-file=-
+
+# mỗi lần cập nhật tài liệu hoặc code
+python -m seatecco_rag.ingest.index
+IMG=asia-southeast1-docker.pkg.dev/<PROJECT_ID>/seatecco/rag:$(date +%Y%m%d-%H%M)
+docker build --target selfcontained -t $IMG .
+docker push $IMG
+
+gcloud run deploy seatecco-rag   --image $IMG --region asia-southeast1   --memory 512Mi --cpu 1 --cpu-boost   --concurrency 8 --min-instances 0 --max-instances 3   --timeout 60   --set-env-vars WEB_CONCURRENCY=1   --set-secrets GOOGLE_API_KEY=GOOGLE_API_KEY:latest,SEATECCO_API_KEY=SEATECCO_API_KEY:latest   --allow-unauthenticated
+```
+
+`--allow-unauthenticated` không có nghĩa là mở toang: `/chat` vẫn đòi `x-api-key`, còn
+`/health` thì cố ý mở để nền tảng dò được. `--max-instances 3` là dây an toàn: một vòng
+lặp curl cũng không thể đẻ ra 100 instance.
+
+Cold start ~4-6 giây. Cách chữa không tốn đồng nào: cho website gọi `/health` ngay khi
+người dùng **mở** widget chat, lúc họ gõ xong câu hỏi thì container đã ấm.
+
+Log đi theo stdout nên Cloud Logging tự thu; query bằng
+`gcloud run services logs read seatecco-rag --region asia-southeast1`. File
+`var/logs/requests.jsonl` trên Cloud Run là tạm và nằm trong RAM - muốn tắt hẳn thì đặt
+`SEATECCO_REQUEST_LOG=/dev/null`.
+
 Trước khi mở ra Internet, kiểm ba việc:
 
 1. **`SEATECCO_API_KEY` đã đặt.** Rỗng thì `/chat` mở cho mọi người, và lúc khởi động
-   service sẽ in cảnh báo. `/healthz` có trường `auth` để kiểm từ xa.
+   service sẽ in cảnh báo. `/health` có trường `auth` để kiểm từ xa.
 2. **`SEATECCO_RATE_LIMIT`** (mặc định 20 lượt/phút mỗi khoá hoặc mỗi IP). Đếm trong
    tiến trình, nên `--workers 2` thì hạn mức thực tế là 40.
 3. **Thời gian xấu nhất.** `(1 + LLM_MAX_RETRIES) x LLM_TIMEOUT` = 30s trước khi rơi
@@ -195,7 +236,7 @@ Trước khi mở ra Internet, kiểm ba việc:
 ## Kiểm tra
 
 ```bash
-pytest                       # 79 test: parser, tool, chunk, ngưỡng, provider, log. ~12s, không gọi mạng
+pytest                       # 97 test: parser, tool, chunk, ngưỡng, provider, log. ~12s, không gọi mạng
 python evals/run_routing.py --lan 2 --label thu_nghiem_moi    # model chọn đúng tool?
 python evals/run_hard.py --lan 2 --label thu_nghiem_moi       # đếm, liệt kê, nói không có
 python evals/run_calibration.py --chi-diem                    # ngưỡng nên đặt bao nhiêu?

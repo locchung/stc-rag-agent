@@ -12,6 +12,16 @@ load_dotenv()
 
 # Trong container, package nằm trong site-packages nên không suy ra được gốc repo
 # từ vị trí file -> cho ghi đè bằng SEATECCO_ROOT (Dockerfile đặt /app).
+def so_moi_truong(ten: str, mac_dinh: str) -> str:
+  """Giá trị biến môi trường dạng số, đã cắt chú thích cuối dòng.
+
+  docker --env-file KHÔNG cắt "# ..." như python-dotenv, nên dòng
+  "SEATECCO_RATE_LIMIT=20  # lượt/phút" sẽ tới đây nguyên cả chú thích và int()
+  sẽ nổ. Chỉ áp dụng cho số: khoá API có thể chứa dấu # thật.
+  """
+  return os.getenv(ten, mac_dinh).split("#", 1)[0].strip()
+
+
 ROOT = Path(os.getenv("SEATECCO_ROOT") or Path(__file__).resolve().parents[2])
 
 # --- dữ liệu nguồn (track trong git) và artifact (không track) ---
@@ -19,21 +29,24 @@ DOCBASE_DIR = ROOT / "data" / "raw"
 INDEX_DIR = ROOT / "var" / "index"
 STORE_PATH = INDEX_DIR / "store.json"
 MANIFEST_PATH = INDEX_DIR / "manifest.json"
-REQUEST_LOG = ROOT / "var" / "logs" / "requests.jsonl"
+# Đặt SEATECCO_REQUEST_LOG= (rỗng) để tắt ghi file - trên Cloud Run đĩa là tạm và
+# tính vào RAM, log đi theo stdout là đủ vì nền tảng tự thu.
+_log = os.getenv("SEATECCO_REQUEST_LOG", str(ROOT / "var" / "logs" / "requests.jsonl"))
+REQUEST_LOG = Path(_log) if _log.strip() else None
 
 # --- cổng HTTP ---
 # Để trống là TẮT xác thực (chỉ dùng khi chạy máy mình). Đặt khoá trước khi mở ra Internet.
 API_KEY = os.getenv("SEATECCO_API_KEY", "")
 # 0 là tắt. Đếm trong tiến trình nên N worker thì hạn mức thực tế là N lần số này.
-RATE_LIMIT_PER_MINUTE = int(os.getenv("SEATECCO_RATE_LIMIT", "20"))
+RATE_LIMIT_PER_MINUTE = int(so_moi_truong("SEATECCO_RATE_LIMIT", "20"))
 
 # --- lịch sử hội thoại ---
 # Service KHÔNG giữ lịch sử: browser giữ và gửi kèm mỗi request, nên chạy bao nhiêu
 # worker cũng được và không có dict nào phình trong RAM. Đổi lại, mọi thứ client gửi
 # lên đều bị cắt theo ba mức dưới đây.
-HISTORY_MAX_TURNS = int(os.getenv("SEATECCO_HISTORY_MAX_TURNS", "8"))
-HISTORY_MAX_CHARS = int(os.getenv("SEATECCO_HISTORY_MAX_CHARS", "500"))
-HISTORY_MAX_TOKENS = int(os.getenv("SEATECCO_HISTORY_MAX_TOKENS", "1200"))
+HISTORY_MAX_TURNS = int(so_moi_truong("SEATECCO_HISTORY_MAX_TURNS", "8"))
+HISTORY_MAX_CHARS = int(so_moi_truong("SEATECCO_HISTORY_MAX_CHARS", "500"))
+HISTORY_MAX_TOKENS = int(so_moi_truong("SEATECCO_HISTORY_MAX_TOKENS", "1200"))
 PDF_TONG_HOP = DOCBASE_DIR / "Thong tin tong hop Seatecco.pdf"
 
 
@@ -62,7 +75,7 @@ OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "")
 # (hit@6 = 0,933), nên đừng đổi sang nó mà không đo lại.
 EMBED_PROVIDER = os.getenv("SEATECCO_EMBED_PROVIDER", "google_genai")
 EMBED_MODEL = os.getenv("SEATECCO_EMBED_MODEL", "gemini-embedding-001")
-EMBED_NUM_CTX = int(os.getenv("SEATECCO_EMBED_NUM_CTX", "2048"))
+EMBED_NUM_CTX = int(so_moi_truong("SEATECCO_EMBED_NUM_CTX", "2048"))
 
 # Ghi vào manifest: đổi bất kỳ giá trị nào ở đây là index bị dựng lại toàn bộ.
 INDEX_CONFIG = {
@@ -76,16 +89,16 @@ INDEX_CONFIG = {
 # --- model trả lời ---
 LLM_PROVIDER = os.getenv("SEATECCO_LLM_PROVIDER", "google_genai")
 LLM_MODEL = os.getenv("SEATECCO_LLM_MODEL", "gemini-3.5-flash-lite")
-LLM_NUM_CTX = int(os.getenv("SEATECCO_LLM_NUM_CTX", "16384"))
-LLM_NUM_PREDICT = int(os.getenv("SEATECCO_LLM_NUM_PREDICT", "1500"))
-LLM_TEMPERATURE = float(os.getenv("SEATECCO_LLM_TEMPERATURE", "0"))
-KEEP_ALIVE = int(os.getenv("SEATECCO_KEEP_ALIVE", "1800"))
+LLM_NUM_CTX = int(so_moi_truong("SEATECCO_LLM_NUM_CTX", "16384"))
+LLM_NUM_PREDICT = int(so_moi_truong("SEATECCO_LLM_NUM_PREDICT", "1500"))
+LLM_TEMPERATURE = float(so_moi_truong("SEATECCO_LLM_TEMPERATURE", "0"))
+KEEP_ALIVE = int(so_moi_truong("SEATECCO_KEEP_ALIVE", "1800"))
 # 1 chứ không 2: retry chỉ hữu ích cho 429, mà rơi xuống Ollama local nhanh còn
 # tốt hơn là để khách chờ. Xấu nhất giờ là 2 * LLM_TIMEOUT = 30s rồi mới fallback.
-LLM_MAX_RETRIES = int(os.getenv("SEATECCO_LLM_MAX_RETRIES", "1"))
+LLM_MAX_RETRIES = int(so_moi_truong("SEATECCO_LLM_MAX_RETRIES", "1"))
 # Timeout biến "lỗi chậm" (server im lặng) thành exception để fallback bắt được.
 # Xấu nhất = (1 + LLM_MAX_RETRIES) * LLM_TIMEOUT giây trước khi rơi sang model dự bị.
-LLM_TIMEOUT = float(os.getenv("SEATECCO_LLM_TIMEOUT", "15"))
+LLM_TIMEOUT = float(so_moi_truong("SEATECCO_LLM_TIMEOUT", "15"))
 
 # Phao dự bị cho đường phục vụ: chỉ api.py bật, eval KHÔNG bật (kẻo 429 âm thầm
 # thành câu trả lời của model khác và điểm đo thành vô nghĩa).
@@ -95,8 +108,8 @@ LLM_FALLBACK_PROVIDER = os.getenv("SEATECCO_LLM_FALLBACK_PROVIDER", "google_gena
 LLM_FALLBACK_MODEL = os.getenv("SEATECCO_LLM_FALLBACK_MODEL", "gemini-3.6-flash")
 
 # --- truy xuất ---
-SEARCH_K = int(os.getenv("SEATECCO_SEARCH_K", "6"))
-SEARCH_CANDIDATES = int(os.getenv("SEATECCO_SEARCH_CANDIDATES", "12"))
+SEARCH_K = int(so_moi_truong("SEATECCO_SEARCH_K", "6"))
+SEARCH_CANDIDATES = int(so_moi_truong("SEATECCO_SEARCH_CANDIDATES", "12"))
 # Ngưỡng điểm tương đồng cosine (càng cao càng giống) để một chunk được coi là
 # LIÊN QUAN. Không chunk nào đạt ngưỡng thì search_documentation trả về đúng câu
 # prompts.KHONG_TIM_THAY, model không còn ngữ cảnh nào để suy diễn - đây là chỗ
@@ -106,4 +119,4 @@ SEARCH_CANDIDATES = int(os.getenv("SEATECCO_SEARCH_CANDIDATES", "12"))
 # Ngưỡng phụ thuộc model embedding (gemini và qwen cho thang điểm khác nhau) nên
 # PHẢI đo trên index thật trước khi bật:
 #     python evals/run_calibration.py --chi-diem
-SEARCH_MIN_SCORE = float(os.getenv("SEATECCO_SEARCH_MIN_SCORE", "0"))
+SEARCH_MIN_SCORE = float(so_moi_truong("SEATECCO_SEARCH_MIN_SCORE", "0"))

@@ -8,8 +8,8 @@ __pycache__/
 **/__pycache__/
 *.py[oc]
 
-# artifact sinh ra, thuộc volume chứ không thuộc image
-var/
+# log là artifact chạy; var/index thì CẦN cho target selfcontained
+var/logs/
 
 # dụng cụ đo, không cần trong bản deploy
 evals/

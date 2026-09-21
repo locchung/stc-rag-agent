@@ -92,8 +92,11 @@ class ChatResponse(BaseModel):
   tokens_out: int
 
 
-@app.get("/healthz")
-def healthz() -> dict:
+# KHÔNG đặt tên /healthz: trên *.run.app, Google Frontend nuốt đúng đường dẫn đó và
+# trả trang 404 HTML của Google, request không bao giờ tới container. Đã đo: /healthz
+# ra text/html còn /health, /livez, /healthzz đều tới nơi và nhận JSON của FastAPI.
+@app.get("/health")
+def health() -> dict:
   """Không yêu cầu khoá: nền tảng hosting phải gọi được để biết container sống."""
   return {"ok": "agent" in _state, "provider": config.LLM_PROVIDER, "model": config.LLM_MODEL,
           "auth": bool(config.API_KEY), "rate_limit_per_minute": config.RATE_LIMIT_PER_MINUTE}

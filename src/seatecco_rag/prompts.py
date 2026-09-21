@@ -3,12 +3,35 @@
 Từng có lần prompt trong eval lệch với prompt của agent, và mọi số đo sau đó
 đều vô nghĩa. Một nguồn duy nhất thì không lệch được.
 """
+from .text import chua
+
 NL = chr(10)
 
 # Câu trả lời khi không có chunk nào đủ liên quan (xem config.SEARCH_MIN_SCORE).
 # Ở đây chứ không ở tools.py vì cả ba nơi phải dùng ĐÚNG một chuỗi: tool trả về
 # nó, prompt dạy model nhắc lại nguyên văn, evals đếm số lần model chịu nói.
 KHONG_TIM_THAY = "Không tìm thấy thông tin này trong tài liệu Seatecco."
+
+# Mọi cách hệ thống nói "tôi không biết" - KHÔNG chỉ câu trên. Ba tool danh sách
+# dùng return_direct nên CHÍNH chúng dựng câu từ chối riêng ("Không có dự án nào ở
+# 'Nhật Bản' trong dữ liệu."), và đó là câu người dùng đọc.
+# evals/run_calibration.py đếm số lần model chịu nói không biết bằng danh sách này,
+# nên thêm một cách từ chối mới trong tools.py là phải khai ở đây, kẻo bộ đo chấm
+# nó thành "bịa". tests/test_tools.py canh giúp việc đó.
+CACH_NOI_KHONG_BIET = [
+  "không tìm thấy",
+  "không có dự án nào",           # cả bản lọc địa điểm và bản lọc lĩnh vực/hạng mục
+  "không có bài tin tức nào",
+  "không có tin tuyển dụng nào",
+  "không có thông tin",           # ba câu dưới là cách model tự diễn đạt
+  "không đề cập",
+  "không nêu",
+]
+
+
+def la_noi_khong_biet(answer: str) -> bool:
+  """Câu trả lời có phải là "tôi không biết" hay không. Bỏ dấu khi so, nhờ text.chua."""
+  return any(chua(cach, answer) for cach in CACH_NOI_KHONG_BIET)
 
 # Ví dụ ngắn (few-shot) đặt ngay trong system prompt: rẻ hơn fine-tune và là cách
 # hiệu quả nhất để model nhỏ chọn đúng tool, nhất là câu bẫy và câu ngoài phạm vi.

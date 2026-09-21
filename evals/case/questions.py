@@ -289,22 +289,9 @@ OUT_OF_SCOPE_CASES = [
     ("thủ đô Pháp",   "thủ đô nước Pháp là thành phố nào?",             "thủ đô"),
 ]
 
-# Câu trả lời được tính là "chịu nói không biết". Nhiều cách diễn đạt vì hai đường
-# khác nhau cùng dẫn tới đây: search_documentation trả về prompts.KHONG_TIM_THAY,
-# còn tra_cuu_du_an (return_direct) tự dựng câu "Không có dự án nào khớp...".
-CACH_NOI_KHONG_BIET = [
-    "không tìm thấy",
-    "không có dự án nào khớp",
-    "không có thông tin",
-    "không đề cập",
-    "không nêu",
-]
-
-
-def la_noi_khong_biet(answer: str) -> bool:
-  """Model có chịu nói là không biết hay không."""
-  a = norm(answer)
-  return any(cach in a for cach in CACH_NOI_KHONG_BIET)
+# Cách nhận diện "chịu nói không biết" nằm trong package (prompts.la_noi_khong_biet),
+# không phải ở đây: nó phải khớp với câu từ chối mà tools.py THẬT SỰ dựng, và
+# tests/test_tools.py canh cặp đó.
 
 
 def check_out_of_scope(full_text: str | None = None) -> bool:

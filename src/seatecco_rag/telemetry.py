@@ -39,11 +39,23 @@ def token_usage(messages: list) -> tuple[int, int]:
   return vao, ra
 
 
-def log_request(record: dict, path: Path | None = None) -> Path:
-  """Ghi thêm một dòng JSON. Append-only, một dòng một lượt hỏi."""
-  path = Path(path) if path else config.REQUEST_LOG
-  path.parent.mkdir(parents=True, exist_ok=True)
+def log_request(record: dict, path: Path | None = None) -> dict:
+  """In một dòng JSON ra stdout, và ghi thêm vào file nếu có bật.
+
+  stdout là đường chính: mọi nền tảng (Cloud Run, Fly, Docker) đều tự thu và cho
+  tìm kiếm. File chỉ tiện khi chạy trên VPS của mình. Ghi file hỏng thì KHÔNG
+  được làm hỏng câu trả lời - đĩa chỉ đọc hay hết chỗ là chuyện thường.
+  """
   day_du = {"luc": datetime.now(timezone.utc).isoformat(timespec="seconds"), **record}
-  with path.open("a", encoding="utf-8") as f:
-    f.write(json.dumps(day_du, ensure_ascii=False) + NL)
-  return path
+  dong = json.dumps(day_du, ensure_ascii=False)
+  print(dong, flush=True)
+
+  dich = Path(path) if path else config.REQUEST_LOG
+  if dich:
+    try:
+      dich.parent.mkdir(parents=True, exist_ok=True)
+      with dich.open("a", encoding="utf-8") as f:
+        f.write(dong + NL)
+    except OSError as e:
+      print(f"[telemetry] không ghi được {dich}: {e}", flush=True)
+  return day_du
