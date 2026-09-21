@@ -186,13 +186,12 @@ def check_facts() -> bool:
   for name, fact in missing:
     print(f"THIẾU: đáp án {fact!r} của câu {name!r} không còn trong {PDF.name}")
   print(f"{len(FACT_CASES) - len(missing)}/{len(FACT_CASES)} đáp án chuẩn còn khớp tài liệu")
+  ngoai_pham_vi_ok = check_out_of_scope(text)
   print("lỗ hổng dữ liệu đã biết:")
   check_pending(text)
-  return not missing
+  return not missing and ngoai_pham_vi_ok
 
 
-if __name__ == "__main__":
-  sys.exit(0 if check_facts() else 1)
 
 
 # ---------------------------------------------------------------------------
@@ -264,3 +263,61 @@ def check_hard() -> bool:
     print(f"THIẾU: chuỗi {x!r} không còn trong {PDF.name}")
   print(f"{len(VI_TRI_TUYEN_DUNG) - len(missing)}/{len(VI_TRI_TUYEN_DUNG)} tên vị trí còn khớp tài liệu")
   return not missing
+
+
+# ---------------------------------------------------------------------------
+# 6. CÂU NGOÀI PHẠM VI - tài liệu KHÔNG có đáp án.
+#
+# Đúng = nói không tìm thấy. Sai = trả lời trơn tru một câu bịa. Không có bộ này
+# thì mọi điểm đo ở trên chỉ nói được "model trả lời đúng khi CÓ dữ liệu", chưa
+# nói được gì về lúc KHÔNG có - mà đó mới là lúc chatbot nội bộ làm hỏng việc.
+#
+# Ba câu đầu là bẫy gần: tài liệu có "tổng vốn đầu tư" của dự án (không phải vốn
+# điều lệ công ty), có "1.500 nhân viên" của Bệnh viện Việt Pháp (không phải của
+# Seatecco), có email tuyendung@ (không phải email kế toán). Chunk lấy được sẽ
+# trông rất liên quan, và model nhỏ rất dễ vơ lấy con số gần giống.
+#
+# Cột thứ 3 là chuỗi PHẢI KHÔNG tồn tại trong tài liệu để câu hỏi còn hợp lệ -
+# check_out_of_scope() canh giúp, vì mỗi lần bổ sung PDF là bộ này có thể hết đúng.
+# ---------------------------------------------------------------------------
+OUT_OF_SCOPE_CASES = [
+    ("vốn điều lệ",   "vốn điều lệ của Seatecco là bao nhiêu tỷ đồng?", "vốn điều lệ"),
+    ("email kế toán", "email của phòng kế toán Seatecco là gì?",        "kế toán"),
+    ("số nhân viên",  "Seatecco hiện có bao nhiêu nhân viên?",          "bao nhiêu nhân viên"),
+    ("dự án Nhật",    "Seatecco có dự án nào ở Nhật Bản không?",        "nhật"),
+    ("giá vàng",      "giá vàng hôm nay bao nhiêu một lượng?",          "giá vàng"),
+    ("thủ đô Pháp",   "thủ đô nước Pháp là thành phố nào?",             "thủ đô"),
+]
+
+# Câu trả lời được tính là "chịu nói không biết". Nhiều cách diễn đạt vì hai đường
+# khác nhau cùng dẫn tới đây: search_documentation trả về prompts.KHONG_TIM_THAY,
+# còn tra_cuu_du_an (return_direct) tự dựng câu "Không có dự án nào khớp...".
+CACH_NOI_KHONG_BIET = [
+    "không tìm thấy",
+    "không có dự án nào khớp",
+    "không có thông tin",
+    "không đề cập",
+    "không nêu",
+]
+
+
+def la_noi_khong_biet(answer: str) -> bool:
+  """Model có chịu nói là không biết hay không."""
+  a = norm(answer)
+  return any(cach in a for cach in CACH_NOI_KHONG_BIET)
+
+
+def check_out_of_scope(full_text: str | None = None) -> bool:
+  """Bộ câu ngoài phạm vi phải THẬT SỰ còn ngoài phạm vi sau mỗi lần bổ sung PDF."""
+  if full_text is None:
+    full_text = _full_text()
+  text = norm(full_text)
+  co = [(name, kw) for name, _, kw in OUT_OF_SCOPE_CASES if norm(kw) in text]
+  for name, kw in co:
+    print(f"HẾT HỢP LỆ: câu {name!r} không còn ngoài phạm vi, tài liệu đã có {kw!r}")
+  print(f"{len(OUT_OF_SCOPE_CASES) - len(co)}/{len(OUT_OF_SCOPE_CASES)} câu ngoài phạm vi còn hợp lệ")
+  return not co
+
+
+if __name__ == "__main__":
+  sys.exit(0 if check_facts() else 1)

@@ -97,6 +97,16 @@ LLM_FALLBACK_MODEL = os.getenv("SEATECCO_LLM_FALLBACK_MODEL", "gemini-3.6-flash"
 # --- truy xuất ---
 SEARCH_K = int(os.getenv("SEATECCO_SEARCH_K", "6"))
 SEARCH_CANDIDATES = int(os.getenv("SEATECCO_SEARCH_CANDIDATES", "12"))
+# Ngưỡng điểm tương đồng cosine (càng cao càng giống) để một chunk được coi là
+# LIÊN QUAN. Không chunk nào đạt ngưỡng thì search_documentation trả về đúng câu
+# prompts.KHONG_TIM_THAY, model không còn ngữ cảnh nào để suy diễn - đây là chỗ
+# duy nhất hệ thống "biết mình không biết".
+# 0 là TẮT, giữ nguyên hành vi cũ: luôn trả về k chunk gần nhất, kể cả khi câu
+# hỏi chẳng liên quan gì tới Seatecco.
+# Ngưỡng phụ thuộc model embedding (gemini và qwen cho thang điểm khác nhau) nên
+# PHẢI đo trên index thật trước khi bật:
+#     python evals/run_calibration.py --chi-diem
+SEARCH_MIN_SCORE = float(os.getenv("SEATECCO_SEARCH_MIN_SCORE", "0"))
 
 LLM_PROVIDER = os.getenv("SEATECCO_LLM_PROVIDER", "ollama")
 EMBED_PROVIDER = os.getenv("SEATECCO_EMBED_PROVIDER", "ollama")
