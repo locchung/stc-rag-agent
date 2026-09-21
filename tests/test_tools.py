@@ -1,5 +1,12 @@
 """Bốn tool. Đây là phần dựng câu trả lời nên phải đúng tuyệt đối, không cần model."""
-from seatecco_rag.tools import liet_ke_tin_tuc, liet_ke_tuyen_dung, tra_cuu_du_an
+from langchain_core.documents import Document
+from langchain_core.embeddings import DeterministicFakeEmbedding
+from langchain_core.vectorstores import InMemoryVectorStore
+
+from seatecco_rag import retrieval
+from seatecco_rag.prompts import KHONG_TIM_THAY, la_noi_khong_biet
+from seatecco_rag.tools import (liet_ke_tin_tuc, liet_ke_tuyen_dung, search_documentation,
+                                tra_cuu_du_an)
 
 
 def goi(tool, **kwargs) -> str:
@@ -94,3 +101,54 @@ def test_dia_diem_hoan_toan_khong_co_thi_goi_y_dia_diem_khac():
   assert "Không có dự án nào ở 'Phú Quốc'" in out
   assert "Các địa điểm có nhiều dự án nhất:" in out
   assert "Lĩnh vực hiện có" not in out      # hỏi địa điểm thì đừng liệt kê lĩnh vực
+
+
+# --- search_documentation: dưới ngưỡng thì Python nói không tìm thấy, không để model đoán ---
+
+def _store_gia(noi_dung: str) -> InMemoryVectorStore:
+  store = InMemoryVectorStore(DeterministicFakeEmbedding(size=32))
+  store.add_documents([Document(page_content=noi_dung, metadata={"type": None})])
+  return store
+
+
+def goi_tool_call(tool, **kwargs):
+  """Gọi theo dạng tool_call để lấy được cả artifact, như agent thật gọi."""
+  return tool.invoke({"name": tool.name, "args": kwargs, "id": "1", "type": "tool_call"})
+
+
+def test_duoi_nguong_thi_tra_ve_dung_cau_khong_tim_thay(monkeypatch):
+  retrieval.set_store(_store_gia("nội dung chẳng liên quan"))
+  monkeypatch.setattr(retrieval, "SEARCH_MIN_SCORE", 2.0)   # cosine <= 1 nên loại hết
+
+  msg = goi_tool_call(search_documentation, query="giá vàng hôm nay bao nhiêu?")
+  assert msg.content == KHONG_TIM_THAY
+  assert msg.artifact == []          # không đoạn nào cho model đọc -> không có gì để bịa
+
+
+def test_dat_nguong_thi_van_tra_ve_ngu_canh_co_ghi_nguon(monkeypatch):
+  retrieval.set_store(_store_gia("Seatecco thành lập năm 1992"))
+  monkeypatch.setattr(retrieval, "SEARCH_MIN_SCORE", 0.0)
+
+  msg = goi_tool_call(search_documentation, query="Seatecco thành lập năm nào?")
+  assert "1992" in msg.content
+  assert msg.content != KHONG_TIM_THAY
+  assert len(msg.artifact) == 1
+
+
+def test_moi_cau_tu_choi_cua_tool_deu_duoc_tinh_la_noi_khong_biet():
+  """evals/run_calibration.py đếm "chịu nói không biết" bằng prompts.la_noi_khong_biet.
+
+  Ba tool danh sách dùng return_direct nên câu từ chối của CHÚNG là câu người dùng
+  đọc, không phải câu model viết. Thêm một cách từ chối mới trong tools.py mà quên
+  khai ở prompts.CACH_NOI_KHONG_BIET thì bộ đo sẽ chấm nó thành "bịa" - điểm tụt
+  mà code thì không sai. Test này bắt đúng cặp lệch đó.
+  """
+  assert la_noi_khong_biet(KHONG_TIM_THAY)
+  assert la_noi_khong_biet(goi(tra_cuu_du_an, dia_diem="Nhật Bản"))
+  assert la_noi_khong_biet(goi(tra_cuu_du_an, linh_vuc="smart home"))
+  assert la_noi_khong_biet(goi(liet_ke_tin_tuc, tu_khoa="khong ton tai xyz"))
+  assert la_noi_khong_biet(goi(liet_ke_tuyen_dung, tu_khoa="khong ton tai xyz"))
+
+  # và không được rộng quá: câu trả lời thật không phải là từ chối
+  assert not la_noi_khong_biet(goi(tra_cuu_du_an, hang_muc="PCCC"))
+  assert not la_noi_khong_biet(goi(liet_ke_tin_tuc))

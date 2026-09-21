@@ -100,6 +100,47 @@ Lịch sử chỉ để model **hiểu câu hỏi rút gọn** mà chọn đúng
 nội dung câu trả lời cũ, vì ba tool danh sách dùng `return_direct` nên model chưa bao giờ
 đọc output của tool. Client nên giữ bản đầy đủ để hiển thị và chỉ gửi bản rút gọn.
 
+## Biết mình không biết
+
+Chatbot nội bộ hỏng việc không phải lúc nó im, mà lúc nó trả lời sai bằng giọng rất
+tự tin. Mặc định `similarity_search` **luôn** trả về K chunk gần nhất: hỏi *"giá vàng
+hôm nay bao nhiêu?"* thì model vẫn nhận được 6 đoạn về Seatecco và vẫn viết ra một câu
+nghe thuyết phục. Chặn ở hai tầng:
+
+1. **Ngưỡng điểm, do Python quyết định.** `SEATECCO_SEARCH_MIN_SCORE` là điểm cosine
+   tối thiểu. Không chunk nào đạt thì `search_documentation` trả về đúng một câu
+   `prompts.KHONG_TIM_THAY` và artifact rỗng - model không còn ngữ cảnh nào để suy diễn.
+   Cùng tinh thần `return_direct`: quyết định nằm ở code, không ở model.
+2. **Prompt.** `SYSTEM_PROMPT` nói rõ "nói không biết là câu trả lời ĐÚNG", kèm 5 ví dụ
+   ngắn (few-shot) - rẻ hơn fine-tune và là cách hiệu quả nhất với model nhỏ.
+
+Ngưỡng **mặc định là 0, tức TẮT**, vì thang điểm mỗi model embedding một khác. Đo rồi
+hãy bật:
+
+```bash
+python evals/run_calibration.py --chi-diem   # in điểm từng câu + ngưỡng đề nghị
+# đặt SEATECCO_SEARCH_MIN_SCORE theo số nó in ra, rồi:
+python evals/run_calibration.py              # model có chịu nói không biết?
+python evals/run_calibration.py --nguong 0.5 # thử ngưỡng khác mà không sửa .env
+```
+
+`--chi-diem` không cần LLM, chỉ cần index. Nó chấm điểm 12 câu **trong** phạm vi và 6 câu
+**ngoài** phạm vi (`OUT_OF_SCOPE_CASES`), rồi nói thẳng có tách được hai nhóm hay không.
+Ba câu ngoài phạm vi đầu tiên là bẫy gần: tài liệu có *tổng vốn đầu tư* của dự án (không
+phải vốn điều lệ công ty), có *1.500 nhân viên* của Bệnh viện Việt Pháp (không phải của
+Seatecco), có email `tuyendung@` (không phải email kế toán). Chunk lấy được trông rất
+liên quan - đúng loại câu khiến model nhỏ vơ lấy con số gần giống.
+
+Hai cột kết quả phải đọc **cùng nhau**:
+
+| cột | ý nghĩa | ngưỡng quá cao | ngưỡng quá thấp |
+|---|---|---|---|
+| `nói không biết` / `bịa` | câu ngoài phạm vi | tốt | xấu |
+| `từ chối oan` | câu trong phạm vi bị chặn oan | xấu | tốt |
+
+Ngưỡng thật cao thì `bịa = 0` nhưng chatbot hoá ra câm. Đặt ngưỡng là chọn điểm cân
+bằng, và `evals/results/calib_*.json` ghi lại ngưỡng của từng lần đo để về sau so được.
+
 ## Triển khai
 
 Ràng buộc quyết định mọi thứ: **embedding chạy Ollama**, nên nơi nào host service thì
@@ -195,9 +236,11 @@ Trước khi mở ra Internet, kiểm ba việc:
 ## Kiểm tra
 
 ```bash
-pytest                       # 47 test: parser, tool, chunk, provider, log. ~14s, không gọi mạng
+pytest                       # 97 test: parser, tool, chunk, ngưỡng, provider, log. ~12s, không gọi mạng
 python evals/run_routing.py --lan 2 --label thu_nghiem_moi    # model chọn đúng tool?
 python evals/run_hard.py --lan 2 --label thu_nghiem_moi       # đếm, liệt kê, nói không có
+python evals/run_calibration.py --chi-diem                    # ngưỡng nên đặt bao nhiêu?
+python evals/run_calibration.py --lan 2                       # có chịu nói không biết?
 python evals/run_routing.py --chi-so-sanh                     # lịch sử các lần đo
 ```
 

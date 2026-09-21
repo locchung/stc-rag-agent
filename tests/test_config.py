@@ -28,6 +28,7 @@ def test_moi_so_trong_config_deu_la_so():
   assert isinstance(config.LLM_MAX_RETRIES, int)
   assert isinstance(config.LLM_TIMEOUT, float)
   assert isinstance(config.SEARCH_K, int)
+  assert isinstance(config.SEARCH_MIN_SCORE, float)
   assert isinstance(config.HISTORY_MAX_TURNS, int)
 
 
@@ -47,3 +48,22 @@ def test_khong_bien_nao_bi_khai_bao_hai_lan():
          for muc in node.targets if isinstance(muc, ast.Name)]
   trung = sorted(t for t, n in Counter(ten).items() if n > 1)
   assert not trung, f"khai báo trùng trong config.py: {trung}"
+
+
+def test_mac_dinh_la_gemini_khong_phai_ollama(monkeypatch):
+  """Mặc định phải khớp README và docker-compose: phục vụ không cần Ollama.
+
+  Bổ sung cho test trên: chỗ kia bắt việc khai báo trùng, chỗ này bắt GIÁ TRỊ
+  mặc định bị đổi - hai cách hỏng khác nhau của cùng một lỗi.
+  """
+  import importlib
+  for bien in ("SEATECCO_LLM_PROVIDER", "SEATECCO_EMBED_PROVIDER"):
+    monkeypatch.delenv(bien, raising=False)
+  monkeypatch.setattr("dotenv.load_dotenv", lambda *a, **k: False)   # bỏ qua .env của máy
+
+  lai = importlib.reload(config)
+  try:
+    assert lai.LLM_PROVIDER == "google_genai"
+    assert lai.EMBED_PROVIDER == "google_genai"
+  finally:
+    importlib.reload(config)          # trả lại giá trị thật cho các test sau

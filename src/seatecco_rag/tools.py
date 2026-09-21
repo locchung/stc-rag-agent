@@ -8,6 +8,7 @@ from collections import Counter
 from langchain.tools import tool
 
 from . import catalog, retrieval
+from .prompts import KHONG_TIM_THAY
 from .text import chua, chuan_hoa
 
 NL = chr(10)
@@ -123,6 +124,11 @@ def search_documentation(query: str):
     query: Câu truy vấn bằng ngôn ngữ tự nhiên.
   """
   docs = retrieval.search(query)
+  if not docs:
+    # Không chunk nào đạt config.SEARCH_MIN_SCORE. Trả thẳng câu "không tìm thấy"
+    # thay vì đưa cho model mấy đoạn gần nhất nhưng chẳng liên quan - đó chính là
+    # lúc model nhỏ bịa ra một câu trả lời nghe rất thuyết phục.
+    return KHONG_TIM_THAY, []
   # artifact (docs) không gửi cho model, chỉ để eval và log soi lại
   return retrieval.format_context(docs), docs
 

@@ -41,3 +41,40 @@ def test_format_context_ghi_nguon():
   docs = [Document(page_content="nội dung",
                    metadata={"doc_title": "Tài liệu A", "section": "PHẦN 1"})]
   assert "[Nguồn: Tài liệu A > PHẦN 1]" in retrieval.format_context(docs)
+
+
+# --- ngưỡng điểm: chỗ hệ thống "biết mình không biết" (config.SEARCH_MIN_SCORE) ---
+
+def test_nguong_cao_hon_moi_diem_thi_tra_ve_rong():
+  # cosine luôn <= 1 nên ngưỡng 2.0 chắc chắn loại hết -> tool sẽ nói không tìm thấy
+  retrieval.set_store(store_gia([Document(page_content="nội dung", metadata={"type": None})]))
+
+  assert retrieval.search("bất kỳ", min_score=2.0) == []
+
+
+def test_nguong_0_la_tat_han_buoc_loc_diem():
+  docs = [Document(page_content=f"đoạn {i}", metadata={"type": None}) for i in range(5)]
+  retrieval.set_store(store_gia(docs))
+
+  assert len(retrieval.search("bất kỳ", k=6, candidates=10, min_score=0)) == 5
+
+
+def test_search_scored_giu_diem_va_sap_giam_dan():
+  docs = [Document(page_content=f"đoạn {i}", metadata={"type": None}) for i in range(5)]
+  retrieval.set_store(store_gia(docs))
+
+  diem = [s for _, s in retrieval.search_scored("bất kỳ", k=5, candidates=10, min_score=0)]
+  assert len(diem) == 5
+  assert diem == sorted(diem, reverse=True)
+  assert all(-1.0 <= s <= 1.0 for s in diem)
+
+
+def test_khong_truyen_min_score_thi_doc_config_luc_goi(monkeypatch):
+  # đọc lúc GỌI chứ không phải lúc import, nhờ vậy đổi env/ngưỡng là có hiệu lực ngay
+  retrieval.set_store(store_gia([Document(page_content="nội dung", metadata={"type": None})]))
+
+  monkeypatch.setattr(retrieval, "SEARCH_MIN_SCORE", 2.0)
+  assert retrieval.search("bất kỳ") == []
+
+  monkeypatch.setattr(retrieval, "SEARCH_MIN_SCORE", 0.0)
+  assert len(retrieval.search("bất kỳ")) == 1
